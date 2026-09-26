@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>江津信息屏</title>
+<style>
+  * { box-sizing: border-box; -webkit-text-size-adjust: 100%; margin: 0; padding: 0; }
+  body {
+    font-family: "Songti SC", "SimSun", "Noto Serif CJK SC", serif;
+    background: #ffffff; color: #000000;
+    padding: 16px 20px 20px;
+  }
+  .hd { border-bottom: 3px solid #000; padding-bottom: 6px; }
+  .hd .hello { font-size: 26px; font-weight: bold; }
+  .hd .s { font-size: 15px; color: #333; margin-top: 2px; }
+
+  .clock { text-align: center; margin: 4px 0 8px; }
+  .clock .time { font-size: 72px; font-weight: bold; line-height: 1.02; letter-spacing: 2px; }
+  .clock .sec { font-size: 32px; font-weight: normal; color: #555; }
+
+  .wx { border: 2px solid #000; border-radius: 8px; padding: 10px 14px; margin-bottom: 10px; }
+  .wx-line1 { overflow: hidden; }
+  .wx-left { float: left; }
+  .wx-temp { font-size: 56px; font-weight: bold; line-height: 1; display: inline; }
+  .wx-desc { font-size: 24px; font-weight: bold; display: inline; margin-left: 8px; }
+  .wx-right { float: right; text-align: right; font-size: 16px; color: #333; margin-top: 14px; }
+  .wx-right div { margin-top: 2px; }
+  .wx-loc { font-size: 14px; color: #555; margin-top: 4px; clear: both; }
+
+  .dress { border: 3px solid #000; border-radius: 10px; padding: 10px 14px; margin-bottom: 10px; background: #f5f5f5; }
+  .dress .t { font-size: 20px; font-weight: bold; }
+  .dress .c { font-size: 30px; font-weight: bold; margin-top: 4px; letter-spacing: 1px; }
+  .dress .d { font-size: 17px; color: #333; margin-top: 3px; }
+
+  .row { overflow: hidden; margin-bottom: 10px; }
+  .box { border: 2px solid #000; border-radius: 8px; padding: 8px 12px; }
+  .box-aqi { width: 50%; float: left; }
+  .box-2d { width: 50%; float: right; }
+  .box .bt { font-size: 15px; font-weight: bold; }
+  .box .bv { font-size: 26px; font-weight: bold; margin-top: 2px; }
+  .box .bs { font-size: 14px; color: #555; margin-top: 2px; }
+
+  .fc2 { border: 2px solid #000; border-radius: 8px; padding: 8px 14px; margin-bottom: 10px; }
+  .fc2 .ft { font-size: 18px; font-weight: bold; border-bottom: 2px solid #000; padding-bottom: 4px; margin-bottom: 6px; }
+  .fc2 .fr { overflow: hidden; font-size: 18px; padding: 4px 0; border-bottom: 1px solid #bbb; }
+  .fc2 .fr:last-child { border-bottom: none; }
+  .fd { float: left; width: 40%; font-weight: bold; }
+  .fw { float: left; width: 38%; }
+  .ftc { float: left; width: 22%; text-align: right; font-weight: bold; }
+
+  .foot { font-size: 12px; color: #666; border-top: 2px solid #000; padding-top: 5px; margin-top: 2px; }
+  .foot div { margin-top: 1px; }
+  #loading { font-size: 18px; padding: 10px 0; color: #444; }
+  .nav { border-top: 2px solid #000; background: #fff; display: -webkit-box; display: -webkit-flex; display: flex; margin-top: 8px; }
+  .nav a { -webkit-box-flex: 1; -webkit-flex: 1; flex: 1; text-align: center; font-size: 20px; font-weight: bold; padding: 16px 0; color: #111; text-decoration: none; letter-spacing: 2px; }
+  .nav a+a { border-left: 2px solid #000; }
+  .nav .on { background: #111; color: #fff; }
+</style>
+</head>
+<body>
+<div id="wrap">
+
+  <div class="hd">
+    <div class="hello" id="helloTxt">周师傅，你好</div>
+    <div class="s" id="hdSub"></div>
+  </div>
+
+  <div class="clock">
+    <div class="time" id="timeTxt">--:--<span class="sec">:--</span></div>
+  </div>
+
+  <div id="loading">正在获取数据…</div>
+
+  <div class="wx" id="wxCard">
+    <div class="wx-line1">
+      <div class="wx-left">
+        <span class="wx-temp" id="wxTemp">--°</span>
+        <span class="wx-desc" id="wxDesc">获取中</span>
+      </div>
+      <div class="wx-right">
+        <div id="wxWind">风 --</div>
+        <div id="wxHum">湿度 --</div>
+      </div>
+    </div>
+    <div class="wx-loc" id="wxLoc">重庆市江津区 · 中国天气网官方</div>
+  </div>
+
+  <div class="dress">
+    <div class="t">今日穿衣</div>
+    <div class="c" id="dressMain">--</div>
+    <div class="d" id="dressSub">--</div>
+  </div>
+
+  <div class="row">
+    <div class="box box-aqi">
+      <div class="bt">空气质量</div>
+      <div class="bv" id="aqiVal">--</div>
+      <div class="bs" id="aqiLv">获取中</div>
+    </div>
+    <div class="box box-2d">
+      <div class="bt">一句话</div>
+      <div class="bv" id="dressKey" style="font-size:22px;">--</div>
+      <div class="bs" id="dressKeySub">--</div>
+    </div>
+  </div>
+
+  <div class="fc2">
+    <div class="ft">未来 2 天</div>
+    <div id="fcList">获取中…</div>
+  </div>
+
+  <div class="foot">
+    <div id="footSrc">数据：中国天气网（中国气象局）</div>
+    <div>每分钟自动同步 · 数据源每 5 分钟更新</div>
+  </div>
+
+  <div class="nav">
+    <a href="index.html" class="on">江津信息屏</a>
+    <a href="c.html">极简时钟</a>
+    <a href="countdown.html">倒计时</a>
+  </div>
+
+</div>
+
+<script>
+var LunarMod = (function () {
+  var INFO = [
+    0x04bd8,0x04ae0,0x0a570,0x054d5,0x0d260,0x0d950,0x16554,0x056a0,0x09ad0,0x055d2,
+    0x04ae0,0x0a5b6,0x0a4d0,0x0d250,0x1d255,0x0b540,0x0d6a0,0x0ada2,0x095b0,0x14977,
+    0x04970,0x0a4b0,0x0b4b5,0x06a50,0x06d40,0x1ab54,0x02b60,0x09570,0x052f2,0x04970,
+    0x06566,0x0d4a0,0x0ea50,0x06e95,0x05ad0,0x02b60,0x186e3,0x092e0,0x1c8d7,0x0c950,
+    0x0d4a0,0x1d8a6,0x0b550,0x056a0,0x1a5b4,0x025d0,0x092d0,0x0d2b2,0x0a950,0x0b557,
+    0x06ca0,0x0b550,0x15355,0x04da0,0x0a5b0,0x14573,0x052b0,0x0a9a8,0x0e950,0x06aa0,
+    0x0aea6,0x0ab50,0x04b60,0x0aae4,0x0a570,0x05260,0x0f263,0x0d950,0x05b57,0x056a0,
+    0x096d0,0x04dd5,0x04ad0,0x0a4d0,0x0d4d4,0x0d250,0x0d558,0x0b540,0x0b6a0,0x195a6,
+    0x095b0,0x049b0,0x0a974,0x0a4b0,0x0b27a,0x06a50,0x06d40,0x0af46,0x0ab60,0x09570,
+    0x04af5,0x04970,0x064b0,0x074a3,0x0ea50,0x06b58,0x055c0,0x0ab60,0x096d5,0x092e0,
+    0x0c960,0x0d954,0x0d4a0,0x0da50,0x07552,0x056a0,0x0abb7,0x025d0,0x092d0,0x0cab5,
+    0x0a950,0x0b4a0,0x0baa4,0x0ad50,0x055d9,0x04ba0,0x0a5b0,0x15176,0x052b0,0x0a930,
+    0x07954,0x06aa0,0x0ad50,0x05b52,0x04b60,0x0a6e6,0x0a4e0,0x0d260,0x0ea65,0x0d530,
+    0x05aa0,0x076a3,0x096d0,0x04afb,0x04ad0,0x0a4d0,0x1d0b6,0x0d250,0x0d520,0x0dd45,
+    0x0b5a0,0x056d0,0x055b2,0x049b0,0x0a577,0x0a4b0,0x0aa50,0x1b255,0x06d20,0x0ada0,
+    0x14b63,0x09370,0x049f8,0x04970,0x064b0,0x168a6,0x0ea50,0x06b20,0x1a6c4,0x0aae0,
+    0x0a2e0,0x0d2e3,0x0c960,0x0d557,0x0d4a0,0x0da50,0x05d55,0x056a0,0x0a6d0,0x055d4,
+    0x052d0,0x0a9b8,0x0a950,0x0b4a0,0x0b6a6,0x0ad50,0x055a0,0x0aba4,0x0a5b0,0x052b0,
+    0x0b273,0x06930,0x07337,0x06aa0,0x0ad50,0x14b55,0x04b60,0x0a570,0x054e4,0x0d160,
+    0x0e968,0x0d520,0x0daa0,0x16aa6,0x056d0,0x04ae0,0x0a9d4,0x0a2d0,0x0d150,0x0f252,
+    0x0d520
+  ];
+  var GAN = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+  var ZHI = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+  var CN  = ['日','一','二','三','四','五','六','七','八','九','十'];
+  var MON = ['正','二','三','四','五','六','七','八','九','十','冬','腊'];
+  var SX  = ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪'];
+  function leapMonth(y) { return INFO[y - 1900] & 0xf; }
+  function leapDays(y) { if (leapMonth(y)) return (INFO[y - 1900] & 0x10000) ? 30 : 29; return 0; }
+  function monthDays(y, m) { return (INFO[y - 1900] & (0x10000 >> m)) ? 30 : 29; }
+  function yearDays(y) { var s = 348; for (var i = 0x8000; i > 0x8; i >>= 1) { if (INFO[y - 1900] & i) s++; } return s + leapDays(y); }
+  function cnDay(d) { if (d === 10) return '初十'; if (d === 20) return '二十'; if (d === 30) return '三十'; return ['初','十','廿','三'][Math.floor(d / 10)] + CN[d % 10]; }
+  function fromDate(date) {
+    var offset = Math.floor((Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) - Date.UTC(1900, 0, 31)) / 86400000);
+    var y = 1900, temp = 0;
+    for (; y < 2101 && offset > 0; y++) { temp = yearDays(y); offset -= temp; }
+    if (offset < 0) { offset += temp; y--; }
+    var leap = leapMonth(y), isLeap = false, m = 1;
+    for (; m < 13 && offset >= 0; m++) {
+      if (leap > 0 && m === leap + 1 && !isLeap) { --m; isLeap = true; temp = leapDays(y); }
+      else { temp = monthDays(y, m); }
+      if (isLeap && m === leap + 1) isLeap = false;
+      offset -= temp;
+    }
+    if (offset === 0 && leap > 0 && m === leap + 1) { if (isLeap) isLeap = false; else { isLeap = true; --m; } }
+    if (offset < 0) { offset += temp; --m; }
+    var d = offset + 1;
+    var ganIdx = (y - 4) % 10, zhiIdx = (y - 4) % 12;
+    if (ganIdx < 0) ganIdx += 10; if (zhiIdx < 0) zhiIdx += 12;
+    return { label: (isLeap ? '闰' : '') + MON[m - 1] + '月' + cnDay(d), gzYear: GAN[ganIdx] + ZHI[zhiIdx] + '年', sx: SX[zhiIdx % 12] };
+  }
+  return { fromDate: fromDate };
+})();
+</script>
+
+<script>
+var REFRESH_MS = 60 * 1000;   // 每 1 分钟自动同步一次（天气数据源由 Actions 每 5 分钟更新）
+var loaded = false;
+function $(id) { return document.getElementById(id); }
+function pad2(n) { return n < 10 ? "0" + n : "" + n; }
+var WEEK = ["周日","周一","周二","周三","周四","周五","周六"];
+
+/* ============ 时间引擎 v3: HTTP头为唯一权威, 永远不展示错误时间 ============
+   HTTP Date 头: 每次HTTP响应必带, 服务器真实GMT, 永不陈旧、不依赖Actions、不依赖设备钟
+   锚点(weather.json updated_ts): 仅当从未拿到HTTP头时兜底; 宽松容差(-9h~+13h)覆盖
+        Kindle设备钟偏8h的误判; 不与已有来源倒退
+   本地钟: 最后保命(已知偏8h, 仅保证不崩溃)
+===================================================================== */
+var BEIJING_OFFSET = 8 * 3600 * 1000;
+var ANCHOR_EARLY_MS = 9 * 3600 * 1000;   // 设备可能偏8h: 锚点"看起来"提前最多9h可接受
+var ANCHOR_LATE_MS  = 15 * 60 * 1000;    // 锚点最多滞后15分钟(超过即陈旧, 弃用)
+var srcRank = 0;       // 3=HTTP头 2=锚点 1=本地钟
+var baseRealMs = 0;    // 已校准的真实UTC epoch ms
+var baseLocal = 0;     // 校准时的设备时刻
+var lastSync = 0;      // 最近一次成功校准的设备时刻
+
+/* —— 层级3兜底: 直接用设备钟(偏8h, 仅当无任何校准源时) —— */
+function fallbackBei() {
+  return new Date(new Date().getTime() + BEIJING_OFFSET);
+}
+/* —— 返回当前可用的"真实UTC epoch ms", 失败返回 null —— */
+function realEpochMs() {
+  if (baseRealMs > 0) {
+    var elapsed = new Date().getTime() - baseLocal;
+    return baseRealMs + elapsed;
+  }
+  return null;
+}
+/* —— 主入口: 得到北京时间 Date —— */
+function beiDate() {
+  var real = realEpochMs();
+  if (real !== null) return new Date(real + BEIJING_OFFSET);
+  return fallbackBei();
+}
+/* —— 当前使用的等级(用于调试/页脚) —— */
+function timeSource() { return lastSync > 0 ? 3 : 1; }
+/* —— 层级2: weather.json 锚点(仅当从未拿到HTTP头时使用; 宽松容差) —— */
+function gotAnchor(epochSec, fetchAtMs) {
+  if (!epochSec) return;
+  if (lastSync > 0) return;              // 已有更权威来源, 锚点不用
+  var t = epochSec * 1000;
+  var s = Number(fetchAtMs) || new Date().getTime();
+  var age = s - t;
+  if (age < -ANCHOR_EARLY_MS || age > ANCHOR_LATE_MS) return;  // 离谱偏差 -> 弃用
+  if (baseRealMs > 0 && t < baseRealMs) return;  // 不比已有新 -> 防倒退
+  baseRealMs = t;
+  baseLocal = s;
+  lastSync = s;
+  srcRank = 2;
+}
+/* —— 层级1: HTTP Date 头(服务器真实GMT, 优先级最高) —— */
+function gotHttpDate(gmtMs) {
+  if (!gmtMs) return;
+  baseRealMs = gmtMs;
+  baseLocal = new Date().getTime();
+  lastSync = baseLocal;
+  srcRank = 3;
+}
+
+function helloByHour(h) {
+  if (h >= 5 && h < 8) return "早上好";
+  if (h >= 8 && h < 11) return "上午好";
+  if (h >= 11 && h < 13) return "中午好";
+  if (h >= 13 && h < 18) return "下午好";
+  if (h >= 18 && h < 21) return "傍晚好";
+  if (h >= 21 && h < 24) return "晚上好";
+  return "夜深了，早点休息";
+}
+
+function tickClock() {
+  var d = beiDate();
+  var hh = d.getUTCHours(), mm = d.getUTCMinutes(), ss = d.getUTCSeconds();
+  var Y = d.getUTCFullYear(), M = d.getUTCMonth() + 1, D = d.getUTCDate(), w = d.getUTCDay();
+  $("timeTxt").innerHTML = pad2(hh) + ":" + pad2(mm) + "<span class='sec'>:" + pad2(ss) + "</span>";
+  // 用"数值即北京时间"的Date给农历, 保证月球转换正确
+  var bei = new Date(Y, M - 1, D);
+  var lunar = LunarMod.fromDate(bei);
+  $("helloTxt").innerHTML = "周师傅，" + helloByHour(hh);
+  $("hdSub").innerHTML = Y + "年" + M + "月" + D + "日 "
+    + WEEK[w] + "　农历" + lunar.label;
+}
+
+/* 穿衣建议算法：明确告诉周师傅今天穿什么 */
+function dressAdvice(temp, weather) {
+  var main, say, extra = [];
+  var t = Math.round(temp);
+  if (t >= 30)      { main = "短袖T恤 / 薄衫";    say = "天气热，穿短袖最舒服"; }
+  else if (t >= 26) { main = "短袖T恤 / 短裤";    say = "穿短袖正合适"; }
+  else if (t >= 23) { main = "短袖或薄长袖";      say = "怕热穿短袖，怕凉穿薄长袖"; }
+  else if (t >= 20) { main = "长袖衬衫 / 薄外套";  say = "穿长袖，早晚备件薄外套"; }
+  else if (t >= 16) { main = "薄外套 / 夹克";     say = "穿薄外套或夹克正好"; }
+  else if (t >= 12) { main = "毛衣 / 风衣";       say = "建议穿毛衣或风衣"; }
+  else if (t >= 8)  { main = "毛衣 + 厚外套";     say = "毛衣外面加件厚外套"; }
+  else if (t >= 4)  { main = "棉衣 / 羽绒服";     say = "天冷，穿棉衣或羽绒服"; }
+  else              { main = "厚羽绒 + 保暖内搭"; say = "很冷，注意保暖"; }
+
+  if (weather.indexOf("雨") >= 0) extra.push("记得带伞");
+  if (weather.indexOf("雷") >= 0) extra.push("防雷电");
+  if (weather.indexOf("雪") >= 0) extra.push("注意防滑");
+  if (weather.indexOf("雾") >= 0) extra.push("能见度低");
+  if (weather.indexOf("霾") >= 0) extra.push("出门戴口罩");
+
+  var sub = extra.length ? extra.join("，") : "";
+  return { main: main, say: say, sub: sub };
+}
+
+function loadData() {
+  var fetchAtMs = new Date().getTime();
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", "weather.json?t=" + fetchAtMs, true);
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState !== 4) return;
+    // 层级1: HTTP Date 头 = 服务器真实 GMT, 优先级最高, 永远新鲜
+    var dHdr = xhr.getResponseHeader ? xhr.getResponseHeader("Date") : null;
+    if (dHdr) {
+      var gmtMs = Date.parse(dHdr);
+      if (!isNaN(gmtMs)) gotHttpDate(gmtMs);
+    }
+    if (xhr.status !== 200) { $("loading").innerHTML = "数据获取失败，1分钟后自动重试"; $("loading").style.display = "block"; return; }
+    try {
+      var obj = JSON.parse(xhr.responseText);
+      gotAnchor(obj.updated_ts, fetchAtMs);   // 层级2: 权威锚点(内部校验新鲜度)
+      renderAll(obj);
+    } catch (e) {}
+  };
+  xhr.onerror = function () {};
+  try { xhr.send(); } catch (e) {}
+}
+
+function renderAll(d) {
+  if (!loaded) { loaded = true; $("loading").style.display = "none"; }
+  var c = d.current || {};
+  var temp = parseFloat(c.temp || 0);
+  var weather = c.weather || "未知";
+
+  $("wxTemp").innerHTML = Math.round(temp) + "°";
+  $("wxDesc").innerHTML = weather;
+  $("wxLoc").innerHTML = d.city + " · 中国天气网官方";
+  $("wxWind").innerHTML = "风：" + (c.wd || "--") + " " + (c.ws || "--");
+  $("wxHum").innerHTML = "湿度：" + (c.humidity || "--");
+
+  var adv = dressAdvice(temp, weather);
+  $("dressMain").innerHTML = adv.main;
+  $("dressSub").innerHTML = adv.sub;
+  $("dressKey").innerHTML = adv.say;
+  $("dressKeySub").innerHTML = "";
+
+  $("aqiVal").innerHTML = c.aqi ? "AQI " + c.aqi : "--";
+  $("aqiLv").innerHTML = d.aqi_level ? "等级：" + d.aqi_level : "未知";
+
+  var fc = d.forecast || [];
+  var html = "";
+  for (var i = 1; i < fc.length && i <= 2; i++) {
+    var f = fc[i];
+    var label = f.label || f.date;
+    if (i === 1) label = "明天";
+    if (i === 2) label = "后天";
+    html += "<div class='fr'><span class='fd'>" + label + "</span><span class='fw'>" + f.weather + "</span><span class='ftc'>" + f.high + "°/" + f.low + "°</span></div>";
+  }
+  $("fcList").innerHTML = html || "暂无数据";
+
+  $("footSrc").innerHTML = "数据：中国天气网（中国气象局官方）· " + (d.updated_local || "--") + " 更新";
+  $("footSrc").innerHTML += " · 时间源：" + ["本地钟","锚点","服务器"][timeSource()];
+}
+
+function init() {
+  tickClock();
+  loadData();
+  setInterval(tickClock, 1000);
+  setInterval(loadData, REFRESH_MS);
+}
+if (window.addEventListener) { window.addEventListener("load", init, false); }
+else { window.attachEvent("onload", init); }
+</script>
+</body>
+</html>
