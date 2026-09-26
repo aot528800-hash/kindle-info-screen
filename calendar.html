@@ -10,53 +10,64 @@ html,body{height:100%;background:#fff;}
 body{
   color:#111111;
   font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Heiti SC",sans-serif;
-  text-align:center;padding:14px 14px 96px;
+  text-align:center;padding:16px 12px 96px;
   -webkit-text-size-adjust:100%;
 }
-/* 头部 */
-.hd{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:center;-webkit-align-items:center;align-items:center;-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;margin-bottom:12px;}
-.hd .yr{font-size:38px;font-weight:bold;letter-spacing:3px;}
-.hd .nav2{font-size:30px;width:56px;cursor:pointer;color:#111;font-weight:bold;-webkit-tap-highlight-color:rgba(0,0,0,0);}
-.hd .nav2.l{margin-right:24px;}
-.hd .nav2.r{margin-left:24px;}
-/* 图例 */
-.leg{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;margin-bottom:12px;font-size:15px;}
-.leg span{margin:0 10px;color:#555;}
-.leg b{display:inline-block;width:16px;height:16px;border-radius:4px;margin-right:4px;vertical-align:-3px;}
-.leg .h{background:#e55039;}
-.leg .d{background:#f39c12;}
-.leg .j{background:#2e8b57;}
-/* 星期行 */
-.wrow{display:-webkit-box;display:-webkit-flex;display:flex;}
-.wrow div{-webkit-box-flex:1;-webkit-flex:1;flex:1;font-size:19px;font-weight:bold;padding:8px 0;}
-.wrow div.sun{color:#e55039;}
-.wrow div.sat{color:#e55039;}
-/* 月历表格 */
-table.cal{width:100%;border-collapse:collapse;table-layout:fixed;}
-table.cal th{font-size:18px;font-weight:bold;padding:6px 0;border-bottom:2px solid #000;}
-table.cal th.sun,table.cal th.sat{color:#e55039;}
-table.cal td{
-  height:64px;border:1px solid #eee;vertical-align:top;padding:4px 3px;position:relative;
+/* ===== 头部: 年月 + 翻月 ===== */
+.hd{display:-webkit-box;display:-webkit-flex;display:flex;align-items:center;justify-content:center;margin-bottom:14px;position:relative;}
+.hd .yr{font-size:36px;font-weight:bold;letter-spacing:4px;}
+.hd .nav2{
+  font-size:44px;line-height:1;width:58px;cursor:pointer;color:#111;
+  font-weight:normal;text-align:center;-webkit-tap-highlight-color:rgba(0,0,0,0);
 }
-td.empty{background:#fafaf9;border:1px solid #f2f1ef;}
-/* 今天 */
-td.today{box-shadow:inset 0 0 0 3px #111111;}
-/* 日期数字 */
-td .dnum{font-size:24px;font-weight:bold;text-align:left;line-height:1;}
-td.df .dnum{color:#bbb;}
-td.work .dnum{color:#111;}
-td.sun .dnum,td.sat .dnum{color:#e55039;}
-/* 标签 */
-td .tag{position:absolute;left:3px;bottom:3px;right:3px;text-align:left;font-size:12px;line-height:1.15;font-weight:bold;}
-.tag .t{display:block;color:#e55039;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.tag .t.work{color:#111;}
-.tag .t.jq{color:#2e8b57;}
-.tag .t.work2{color:#f39c12;}
-/* 底图例二行 */
-.foot{font-size:14px;color:#888;margin-top:14px;}
-/* 导航 */
+.hd .nav2.l{position:absolute;left:8px;top:50%;margin-top:-22px;}
+.hd .nav2.r{position:absolute;right:8px;top:50%;margin-top:-22px;}
+/* ===== 图例 ===== */
+.leg{display:-webkit-box;display:-webkit-flex;display:flex;justify-content:center;margin-bottom:12px;font-size:14px;}
+.leg span{margin:0 8px;color:#777;display:-webkit-box;display:-webkit-flex;display:flex;align-items:center;}
+.leg b{display:inline-block;width:14px;height:14px;border-radius:3px;margin-right:5px;flex:none;}
+.leg .h{background:#e55039;}
+.leg .d{background:#f5c542;}
+.leg .j{background:#2e8b57;}
+/* ===== 星期标题 ===== */
+.wrow{display:-webkit-box;display:-webkit-flex;display:flex;margin-bottom:4px;}
+.wrow div{
+  -webkit-box-flex:1;-webkit-flex:1;flex:1;text-align:center;
+  font-size:17px;font-weight:bold;color:#111;padding:6px 0;letter-spacing:1px;
+}
+.wrow div.hk{color:#e55039;}
+/* ===== 月历网格 (纯flex, 不用table, Kindle兼容最好) ===== */
+.cal{display:block;border-top:2px solid #111;border-left:2px solid #111;}
+.row{display:-webkit-box;display:-webkit-flex;display:flex;}
+.cell{
+  -webkit-box-flex:1;-webkit-flex:1;flex:1;position:relative;
+  height:66px;border-right:2px solid #111;border-bottom:2px solid #111;
+  overflow:hidden;
+}
+.cell .dnum{font-size:26px;font-weight:bold;text-align:center;line-height:1;margin-top:6px;}
+.cell .tag{font-size:11px;line-height:1.1;text-align:center;margin-top:8px;padding:0 2px;}
+.cell .tag .t{display:block;color:#111;}
+/* 非本月(前后补位): 空心 */
+.cell.off{background:#f5f4f2;border-right:2px solid #e6e4e0;border-bottom:2px solid #e6e4e0;}
+.cell.off .dnum{color:#c9c6c0;}
+/* 周六周日日期红 */
+.cell.wc .dnum{color:#e55039;}
+.cell.wc .tag .t{color:#e55039;}
+/* 标签颜色 */
+.cell.hol .tag .t{color:#e55039;font-size:11px;}
+.cell.adj .tag .t{color:#b8860b;font-weight:bold;font-size:11px;}
+.cell.jq .tag .t{color:#2e8b57;font-size:10.5px;}
+/* 今天: 实线边框 + 浅底(兼容旧内核, 不用inset阴影) */
+.cell.today{border:3px solid #111;background:#f0f0ee;}
+.cell.today .dnum{margin-top:4px;}
+/* 顶部边线修正: 第一行格子补上上边 */
+.cal .row:first-child .cell{border-top:0;margin-top:0;}
+.cal .row .cell:first-child{border-left:0;}
+/* ===== 页脚 ===== */
+.foot{font-size:13px;color:#999;margin-top:12px;letter-spacing:1px;}
+/* ===== 导航 ===== */
 .nav{position:fixed;left:0;right:0;bottom:0;background:#fff;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:stretch;-webkit-align-items:stretch;align-items:stretch;-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;padding:10px 12px 10px 12px;border-top:1px solid #e0ded8;}
-.nav a{-webkit-box-flex:1;-webkit-flex:1;flex:1;max-width:230px;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-orient:vertical;-webkit-flex-direction:column;flex-direction:column;-webkit-box-align:center;-webkit-align-items:center;align-items:center;-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;margin:0 4px;padding:10px 0 8px;border-radius:14px;font-size:19px;font-weight:bold;color:#555555;text-decoration:none;letter-spacing:1px;-webkit-tap-highlight-color:rgba(0,0,0,0);}
+.nav a{-webkit-box-flex:1;-webkit-flex:1;flex:1;max-width:200px;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-orient:vertical;-webkit-flex-direction:column;flex-direction:column;-webkit-box-align:center;-webkit-align-items:center;align-items:center;-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;margin:0 4px;padding:10px 0 8px;border-radius:14px;font-size:19px;font-weight:bold;color:#555555;text-decoration:none;letter-spacing:1px;-webkit-tap-highlight-color:rgba(0,0,0,0);}
 .nav a i,.nav a b{font-style:normal;font-weight:bold;}
 .nav a i{display:block;font-size:26px;line-height:1;margin-bottom:6px;color:#999999;}
 .nav a.on{background:#111111;color:#ffffff;}
@@ -77,14 +88,13 @@ td .tag{position:absolute;left:3px;bottom:3px;right:3px;text-align:left;font-siz
   <span><b class="j"></b>节气</span>
 </div>
 
-<table class="cal" id="cal">
-  <tr>
-    <th class="sun">日</th><th>一</th><th>二</th><th>三</th><th>四</th><th>五</th><th class="sat">六</th>
-  </tr>
-  <tbody id="tbody"></tbody>
-</table>
+<div class="wrow">
+  <div class="hk">日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div class="hk">六</div>
+</div>
 
-<div class="foot" id="foot">黑色方框 = 今天</div>
+<div class="cal" id="cal"></div>
+
+<div class="foot" id="foot">黑色粗边框格子 = 今天</div>
 
 <div class="nav">
   <a href="index.html"><i>☀</i><b>江津信息屏</b></a>
@@ -94,55 +104,21 @@ td .tag{position:absolute;left:3px;bottom:3px;right:3px;text-align:left;font-siz
 </div>
 
 <script>
-/* ======== 2026年 国务院 放假调休安排 (国办发明电〔2025〕7号) ========
-   格式: 'YYYY-M-D' -> {h:'放假描述', w:'调休上班描述', n:'节日名'} */
+/* ======== 2026年 国务院 放假调休安排 (国办发明电〔2025〕7号) ======== */
 var HOL = {
-  // 元旦
-  '2026-1-1':{n:'元旦',h:'元旦'},
-  '2026-1-2':{h:'元旦'},
-  '2026-1-3':{n:'元旦',h:'元旦'},
-  '2026-1-4':{w:'补班',d:'补1.1'},
-  // 春节
-  '2026-2-14':{w:'补班',d:'补2.16'},
-  '2026-2-15':{n:'除夕',h:'春节'},
-  '2026-2-16':{h:'春节'},
-  '2026-2-17':{h:'春节'},
-  '2026-2-18':{h:'春节'},
-  '2026-2-19':{h:'春节'},
-  '2026-2-20':{h:'春节'},
-  '2026-2-21':{n:'春节',h:'春节'},
-  '2026-2-22':{n:'春节',h:'春节'},
-  '2026-2-23':{n:'春节',h:'春节'},
-  '2026-2-28':{w:'补班',d:'补2.23'},
-  // 清明
-  '2026-4-4':{h:'清明'},
-  '2026-4-5':{n:'清明',h:'清明'},
-  '2026-4-6':{h:'清明'},
-  // 劳动节
-  '2026-5-1':{n:'劳动节',h:'劳动节'},
-  '2026-5-2':{h:'劳动节'},
-  '2026-5-3':{h:'劳动节'},
-  '2026-5-4':{h:'劳动节'},
-  '2026-5-5':{h:'劳动节'},
-  '2026-5-9':{w:'补班',d:'补5.4'},
-  // 端午
-  '2026-6-19':{n:'端午',h:'端午'},
-  '2026-6-20':{h:'端午'},
-  '2026-6-21':{h:'端午'},
-  // 中秋
-  '2026-9-25':{n:'中秋',h:'中秋'},
-  '2026-9-26':{h:'中秋'},
-  '2026-9-27':{h:'中秋'},
-  // 国庆
-  '2026-9-20':{w:'补班',d:'补10.1'},
-  '2026-10-1':{n:'国庆',h:'国庆'},
-  '2026-10-2':{n:'国庆',h:'国庆'},
-  '2026-10-3':{h:'国庆'},
-  '2026-10-4':{h:'国庆'},
-  '2026-10-5':{h:'国庆'},
-  '2026-10-6':{h:'国庆'},
-  '2026-10-7':{h:'国庆'},
-  '2026-10-10':{w:'补班',d:'补10.7'}
+  '2026-1-1':{n:'元旦'},'2026-1-2':{h:'元旦'},'2026-1-3':{h:'元旦'},
+  '2026-1-4':{w:'班'},
+  '2026-2-14':{w:'班'},
+  '2026-2-15':{n:'除夕'},'2026-2-16':{},'2026-2-17':{},'2026-2-18':{},'2026-2-19':{},'2026-2-20':{},'2026-2-21':{},'2026-2-22':{},'2026-2-23':{n:'春节'},
+  '2026-2-28':{w:'班'},
+  '2026-4-4':{},'2026-4-5':{n:'清明'},'2026-4-6':{},
+  '2026-5-1':{n:'劳动'},'2026-5-2':{},'2026-5-3':{},'2026-5-4':{},'2026-5-5':{},
+  '2026-5-9':{w:'班'},
+  '2026-6-19':{n:'端午'},'2026-6-20':{},'2026-6-21':{},
+  '2026-9-25':{n:'中秋'},'2026-9-26':{},'2026-9-27':{},
+  '2026-9-20':{w:'班'},
+  '2026-10-1':{n:'国庆'},'2026-10-2':{},'2026-10-3':{},'2026-10-4':{},'2026-10-5':{},'2026-10-6':{},'2026-10-7':{},
+  '2026-10-10':{w:'班'}
 };
 /* ======== 2026年 二十四节气 ======== */
 var SOL = {
@@ -155,7 +131,7 @@ var SOL = {
 };
 
 function $(id){return document.getElementById(id);}
-var viewY, viewM;   // 当前视图 年/月 (M: 0-11)
+var viewY, viewM;
 
 function padNum(y,m,d){return y+'-'+m+'-'+d;}
 function todayStr(){
@@ -163,50 +139,63 @@ function todayStr(){
   return padNum(d.getUTCFullYear(), d.getUTCMonth()+1, d.getUTCDate());
 }
 function step(delta){
-  viewM += delta;
+  viewM+=delta;
   if(viewM<0){viewM=11;viewY--;}
   if(viewM>11){viewM=0;viewY++;}
   render();
 }
 
-function render(){
-  $('ym').innerHTML = viewY+'年'+(viewM+1)+'月';
-  var tbody = $('tbody');
-  tbody.innerHTML='';
-  var first = new Date(Date.UTC(viewY, viewM, 1));
-  var firstDow = first.getUTCDay();
-  var daysInMonth = new Date(Date.UTC(viewY, viewM+1, 0)).getUTCDate();
-  var today = todayStr();
-  var html='';
-  var cell=0;
-  // 前导空格
-  for(var i=0;i<firstDow;i++){
-    html+='<td class="empty"></td>'; cell++;
+function cellHtml(day, y, m, off){
+  var key=padNum(y,m,day);
+  var today=todayStr();
+  var dow=(new Date(Date.UTC(y,m-1,day))).getUTCDay();
+  var hol=HOL[key], sol=SOL[key];
+  var cls='cell';
+  if(off)cls+=' off';
+  else{
+    if(dow===0||dow===6)cls+=' wc';
+    if(hol&&hol.h){cls+=' hol';}
+    else if(hol&&hol.w){cls+=' adj';}
+    if(sol)cls+=' jq';
+    if(key===today)cls+=' today';
   }
-  for(var day=1; day<=daysInMonth; day++){
-    var y=viewY, m=viewM+1;
-    var key=padNum(y,m,day);
-    var dow = new Date(Date.UTC(viewY, viewM, day)).getUTCDay();
-    // 类名
-    var cls='';
-    if(key===today) cls+=' today ';
-    if(dow===0||dow===6) cls+=' sat ';
-    var hol=HOL[key], sol=SOL[key];
-    // 标签
-    var tagHtml='';
-    if(hol&&hol.h) tagHtml+='<span class="t">'+(hol.n||'\u00A0')+'</span>';
-    else if(hol&&hol.w) tagHtml+='<span class="t work2">班</span>';
-    if(sol) tagHtml+='<span class="t jq">'+sol+'</span>';
-    html+='<td class="'+cls.trim()+'"><div class="dnum">'+day+'</div>'+(tagHtml?'<div class="tag">'+tagHtml+'</div>':'')+'</td>';
-    cell++;
+  var dnum='<div class="dnum">'+day+'</div>';
+  var tagTxt='';
+  if(!off){
+    if(hol&&hol.n)tagTxt+='<span class="t">'+hol.n+'</span>';
+    else if(hol&&hol.w)tagTxt+='<span class="t">班</span>';
+    if(sol)tagTxt+='<span class="t">'+sol+'</span>';
   }
-  // 补尾
-  var rem = (7 - (cell%7))%7;
-  for(var j=0;j<rem;j++) html+='<td class="empty"></td>';
-  tbody.innerHTML=html;
+  var tagHtml=tagTxt?'<div class="tag">'+tagTxt+'</div>':'';
+  return '<div class="'+cls+'">'+dnum+tagHtml+'</div>';
 }
 
-/* —— 时间引擎: 用 HTTP 头校准, 绕开 Kindle 时区偏8h —— */
+function render(){
+  $('ym').innerHTML=viewY+'年'+(viewM+1)+'月';
+  var cal=$('cal');
+  cal.innerHTML='';
+  var daysInMonth=new Date(Date.UTC(viewY,viewM+1,0)).getUTCDate();
+  var firstDow=new Date(Date.UTC(viewY,viewM,1)).getUTCDay();
+  var html='';
+  var day=1;
+  var started=false;
+  // 最多6个星期行
+  for(var w=0;w<6;w++){
+    html+='<div class="row">';
+    for(var d=0;d<7;d++){
+      var idx=w*7+d;
+      if(!started&&idx<firstDow){html+=cellHtml('','','',true);}
+      else if(!started){started=true;html+=cellHtml(day,viewY,viewM+1,false);day++;}
+      else if(day<=daysInMonth){html+=cellHtml(day,viewY,viewM+1,false);day++;}
+      else {html+=cellHtml('','','',true);}
+    }
+    html+='</div>';
+    if(day>daysInMonth)break;   // 已填满, 提前结束
+  }
+  cal.innerHTML=html;
+}
+
+/* —— 时间引擎: HTTP头校准, 绕开Kindle时区 —— */
 var baseRealMs=0, baseLocal=0;
 function gotHttpDate(gmtMs){baseRealMs=gmtMs;baseLocal=Date.now();}
 function beiDate(){
@@ -220,7 +209,7 @@ function beiDate(){
     if(xhr.readyState===4&&xhr.status===200){
       var h=xhr.getResponseHeader?xhr.getResponseHeader('Date'):null;
       if(h){var g=Date.parse(h);if(!isNaN(g))gotHttpDate(g);}
-      if(baseRealMs>0)init();
+      init();
     }
   };
   try{xhr.send();}catch(e){init();}
@@ -230,7 +219,7 @@ function init(){
   viewY=d.getUTCFullYear(); viewM=d.getUTCMonth();
   render();
 }
-setTimeout(function(){ if(typeof viewY==='undefined'){ viewY=2026; viewM=8; render(); } },3000);
+setTimeout(function(){ if(typeof viewY==='undefined'){ viewY=2026; viewM=8; render(); } },2500);
 </script>
 </body>
 </html>
