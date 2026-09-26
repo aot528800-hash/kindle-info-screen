@@ -52,6 +52,10 @@
   .foot { font-size: 12px; color: #666; border-top: 2px solid #000; padding-top: 5px; margin-top: 2px; }
   .foot div { margin-top: 1px; }
   #loading { font-size: 18px; padding: 10px 0; color: #444; }
+  .nav { border-top: 2px solid #000; background: #fff; display: -webkit-box; display: -webkit-flex; display: flex; margin-top: 8px; }
+  .nav a { -webkit-box-flex: 1; -webkit-flex: 1; flex: 1; text-align: center; font-size: 20px; font-weight: bold; padding: 16px 0; color: #111; text-decoration: none; letter-spacing: 2px; }
+  .nav a+a { border-left: 2px solid #000; }
+  .nav .on { background: #111; color: #fff; }
 </style>
 </head>
 <body>
@@ -109,6 +113,12 @@
   <div class="foot">
     <div id="footSrc">数据：中国天气网（中国气象局）</div>
     <div>每分钟自动同步 · 数据源每 5 分钟更新</div>
+  </div>
+
+  <div class="nav">
+    <a href="index.html" class="on">江津信息屏</a>
+    <a href="c.html">极简时钟</a>
+    <a href="countdown.html">倒计时</a>
   </div>
 
 </div>
