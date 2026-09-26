@@ -178,6 +178,23 @@ function $(id) { return document.getElementById(id); }
 function pad2(n) { return n < 10 ? "0" + n : "" + n; }
 var WEEK = ["周日","周一","周二","周三","周四","周五","周六"];
 
+/* 权威时间锚定：以 weather.json 的 updated_ts(真实北京时间Unix秒)为基准，
+   绕开 Kindle 浏览器被偏移 8 小时的本地时钟。 */
+var baseRealMs = 0;
+var baseLocal = 0;
+function gotAnchor(epochSec) {
+  if (!epochSec) return;
+  baseRealMs = epochSec * 1000;
+  baseLocal = new Date().getTime();
+}
+function beiDate() {
+  if (baseRealMs > 0) {
+    var elapsed = new Date().getTime() - baseLocal;   // 设备钟走时(秒速正常,仅显示偏)
+    return new Date(baseRealMs + elapsed + 8 * 3600 * 1000); // 真实时刻+8h=北京时间,按UTC读
+  }
+  return new Date(new Date().getTime() + 8 * 3600 * 1000);   // 兜底
+}
+
 function helloByHour(h) {
   if (h >= 5 && h < 8) return "早上好";
   if (h >= 8 && h < 11) return "上午好";
@@ -189,12 +206,16 @@ function helloByHour(h) {
 }
 
 function tickClock() {
-  var d = new Date();
-  $("timeTxt").innerHTML = pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + "<span class='sec'>:" + pad2(d.getSeconds()) + "</span>";
-  var lunar = LunarMod.fromDate(d);
-  $("helloTxt").innerHTML = "周师傅，" + helloByHour(d.getHours());
-  $("hdSub").innerHTML = d.getFullYear() + "年" + (d.getMonth()+1) + "月" + d.getDate() + "日 "
-    + WEEK[d.getDay()] + "　农历" + lunar.label;
+  var d = beiDate();
+  var hh = d.getUTCHours(), mm = d.getUTCMinutes(), ss = d.getUTCSeconds();
+  var Y = d.getUTCFullYear(), M = d.getUTCMonth() + 1, D = d.getUTCDate(), w = d.getUTCDay();
+  $("timeTxt").innerHTML = pad2(hh) + ":" + pad2(mm) + "<span class='sec'>:" + pad2(ss) + "</span>";
+  // 用"数值即北京时间"的Date给农历, 保证月球转换正确
+  var bei = new Date(Y, M - 1, D);
+  var lunar = LunarMod.fromDate(bei);
+  $("helloTxt").innerHTML = "周师傅，" + helloByHour(hh);
+  $("hdSub").innerHTML = Y + "年" + M + "月" + D + "日 "
+    + WEEK[w] + "　农历" + lunar.label;
 }
 
 /* 穿衣建议算法：明确告诉周师傅今天穿什么 */
@@ -227,7 +248,7 @@ function loadData() {
   xhr.onreadystatechange = function () {
     if (xhr.readyState !== 4) return;
     if (xhr.status !== 200) { $("loading").innerHTML = "数据获取失败，5分钟后自动重试"; $("loading").style.display = "block"; return; }
-    try { renderAll(JSON.parse(xhr.responseText)); } catch (e) {}
+    try { var obj = JSON.parse(xhr.responseText); gotAnchor(obj.updated_ts); renderAll(obj); } catch (e) {}
   };
   xhr.onerror = function () {};
   try { xhr.send(); } catch (e) {}
