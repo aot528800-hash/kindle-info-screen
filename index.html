@@ -108,7 +108,7 @@
 
   <div class="foot">
     <div id="footSrc">数据：中国天气网（中国气象局）</div>
-    <div>每 5 分钟自动刷新</div>
+    <div>每分钟自动同步 · 数据源每 5 分钟更新</div>
   </div>
 
 </div>
@@ -172,7 +172,7 @@ var LunarMod = (function () {
 </script>
 
 <script>
-var REFRESH_MS = 5 * 60 * 1000;
+var REFRESH_MS = 60 * 1000;   // 每 1 分钟自动同步一次（天气数据源由 Actions 每 5 分钟更新）
 var loaded = false;
 function $(id) { return document.getElementById(id); }
 function pad2(n) { return n < 10 ? "0" + n : "" + n; }
