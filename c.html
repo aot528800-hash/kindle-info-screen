@@ -43,31 +43,62 @@ body{
 <script>
 var WEEK=['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
 function pad2(n){return n<10?'0'+n:''+n;}
-// 权威时间锚定: 以 weather.json 的 updated_ts 为基准, 自走秒 + 每5分钟校准,
-// 彻底绕开 Kindle 浏览器被偏移 8 小时的本地时钟。
-var baseRealMs=0;
-var baseLocal=0;
-function gotAnchor(epochSec){
+/* ============ 时间引擎 v3: HTTP头为唯一权威, 永远不展示错误时间 ============
+   HTTP Date 头: 每次HTTP响应必带, 服务器真实GMT, 永不陈旧、不依赖Actions、不依赖设备钟
+   锚点(weather.json updated_ts): 仅当从未拿到HTTP头时兜底; 宽松容差(-9h~+13h)覆盖
+        Kindle设备钟偏8h的误判; 不与已有来源倒退
+   本地钟: 最后保命(已知偏8h, 仅保证不崩溃)
+===================================================================== */
+var BEIJING_OFFSET=8*3600*1000;
+var ANCHOR_EARLY_MS=9*3600*1000;    // 设备可能偏8h: 锚点"看起来"提前最多9h可接受
+var ANCHOR_LATE_MS=15*60*1000;      // 锚点最多滞后15分钟(超过即陈旧, 弃用)
+var srcRank=0;        // 3=HTTP头 2=锚点 1=本地钟
+var baseRealMs=0;     // 已校准的真实UTC epoch ms
+var baseLocal=0;      // 校准时的设备时刻
+var lastSync=0;       // 最近一次成功校准的设备时刻
+function fallbackBei(){return new Date(new Date().getTime()+BEIJING_OFFSET);}
+function realEpochMs(){
+  if(baseRealMs>0){return baseRealMs+(new Date().getTime()-baseLocal);}
+  return null;
+}
+function beiDate(){
+  var real=realEpochMs();
+  if(real!==null)return new Date(real+BEIJING_OFFSET);
+  return fallbackBei();
+}
+function timeSource(){return lastSync>0?3:1;}
+function gotAnchor(epochSec,fetchAtMs){
   if(!epochSec)return;
-  baseRealMs=epochSec*1000;
-  baseLocal=Date.now();
+  if(lastSync>0)return;               // 已有更权威来源, 锚点不用
+  var t=epochSec*1000;
+  var s=Number(fetchAtMs)||Date.now();
+  var age=s-t;
+  if(age<-ANCHOR_EARLY_MS||age>ANCHOR_LATE_MS)return;  // 离谱偏差 -> 弃用
+  if(baseRealMs>0&&t<baseRealMs)return;  // 不比已有新 -> 防倒退
+  baseRealMs=t;
+  baseLocal=s;
+  lastSync=s;
+  srcRank=2;
+}
+function gotHttpDate(gmtMs){
+  if(!gmtMs)return;
+  baseRealMs=gmtMs;
+  baseLocal=new Date().getTime();
+  lastSync=baseLocal;
+  srcRank=3;
 }
 function loadAnchor(){
+  var fetchAtMs=Date.now();
   var xhr=new XMLHttpRequest();
-  xhr.open('GET','weather.json?t='+Date.now(),true);
+  xhr.open('GET','weather.json?t='+fetchAtMs,true);
   xhr.onreadystatechange=function(){
     if(xhr.readyState===4&&xhr.status===200){
-      try{var o=JSON.parse(xhr.responseText);if(o&&o.updated_ts)gotAnchor(o.updated_ts);}catch(e){}
+      var dHdr=xhr.getResponseHeader?xhr.getResponseHeader('Date'):null;
+      if(dHdr){var gmtMs=Date.parse(dHdr);if(!isNaN(gmtMs))gotHttpDate(gmtMs);}
+      try{var o=JSON.parse(xhr.responseText);if(o&&o.updated_ts)gotAnchor(o.updated_ts,fetchAtMs);}catch(e){}
     }
   };
   xhr.send();
-}
-function beiDate(){
-  if(baseRealMs>0){
-    var elapsed=Date.now()-baseLocal;
-    return new Date(baseRealMs+elapsed+8*3600*1000);
-  }
-  return new Date(new Date().getTime()+8*3600*1000);
 }
 var elH=document.getElementById('h');
 var elSec=document.getElementById('sec');
