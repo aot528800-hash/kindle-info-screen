@@ -9,7 +9,7 @@
   body {
     font-family: "Songti SC", "SimSun", "Noto Serif CJK SC", serif;
     background: #ffffff; color: #000000;
-    padding: 16px 20px 20px;
+    padding: 16px 20px 96px;
   }
   .hd { border-bottom: 3px solid #000; padding-bottom: 6px; }
   .hd .hello { font-size: 26px; font-weight: bold; }
@@ -52,10 +52,32 @@
   .foot { font-size: 12px; color: #666; border-top: 2px solid #000; padding-top: 5px; margin-top: 2px; }
   .foot div { margin-top: 1px; }
   #loading { font-size: 18px; padding: 10px 0; color: #444; }
-  .nav { border-top: 2px solid #000; background: #fff; display: -webkit-box; display: -webkit-flex; display: flex; margin-top: 8px; }
-  .nav a { -webkit-box-flex: 1; -webkit-flex: 1; flex: 1; text-align: center; font-size: 20px; font-weight: bold; padding: 16px 0; color: #111; text-decoration: none; letter-spacing: 2px; }
-  .nav a+a { border-left: 2px solid #000; }
-  .nav .on { background: #111; color: #fff; }
+  /* ——— 统一底部导航：三等分 · 图标+文字 · 当前页胶囊高亮 —— */
+  .nav {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: #fff; margin: 0;
+    display: -webkit-box; display: -webkit-flex; display: flex;
+    -webkit-box-align: stretch; -webkit-align-items: stretch; align-items: stretch;
+    -webkit-box-pack: center; -webkit-justify-content: center; justify-content: center;
+    padding: 10px 12px 10px 12px;
+    border-top: 1px solid #e0ded8;
+  }
+  .nav a {
+    -webkit-box-flex: 1; -webkit-flex: 1; flex: 1;
+    max-width: 230px;
+    display: -webkit-box; display: -webkit-flex; display: flex;
+    -webkit-box-orient: vertical; -webkit-flex-direction: column; flex-direction: column;
+    -webkit-box-align: center; -webkit-align-items: center; align-items: center;
+    -webkit-box-pack: center; -webkit-justify-content: center; justify-content: center;
+    margin: 0 4px; padding: 10px 0 8px; border-radius: 14px;
+    font-size: 19px; font-weight: bold; color: #555555;
+    text-decoration: none; letter-spacing: 1px;
+    -webkit-tap-highlight-color: rgba(0,0,0,0); font-family: inherit;
+  }
+  .nav a i, .nav a b { font-style: normal; font-weight: bold; }
+  .nav a i { display: block; font-size: 26px; line-height: 1; margin-bottom: 6px; color: #999999; }
+  .nav a.on { background: #111111; color: #ffffff; }
+  .nav a.on i, .nav a.on b { color: #ffffff; }
 </style>
 </head>
 <body>
@@ -116,9 +138,9 @@
   </div>
 
   <div class="nav">
-    <a href="index.html" class="on">江津信息屏</a>
-    <a href="c.html">极简时钟</a>
-    <a href="countdown.html">倒计时</a>
+    <a href="index.html" class="on"><i>☀</i><b>江津信息屏</b></a>
+    <a href="c.html"><i>◷</i><b>极简时钟</b></a>
+    <a href="countdown.html"><i>⏱</i><b>倒计时</b></a>
   </div>
 
 </div>
