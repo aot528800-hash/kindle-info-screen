@@ -51,7 +51,32 @@ function lunarLabel(y,m,d){
   mo=leap?-mo:mo;
   return (leap?'闰':'')+MONCN[mo-1]+DAYCN[da-1];
 }
-function beiDate(){return new Date(new Date().getTime()+8*3600*1000);}
+// 以权威时间基准(weather.json 的 updated_ts)锚定, 自走秒 + 定时重新校准。
+// 彻底绕开 Kindle 浏览器被偏移 8 小时的本地时钟读数。
+var baseRealMs=0;   // 权威真实时间戳(ms)
+var baseLocal=0;    // 读取权威时间时, 设备本地 clock (用于算流逝秒数)
+function gotAnchor(epochSec){
+  if(!epochSec)return;
+  baseRealMs=epochSec*1000;
+  baseLocal=Date.now();
+}
+function loadAnchor(){
+  var xhr=new XMLHttpRequest();
+  xhr.open('GET','weather.json?t='+Date.now(),true);
+  xhr.onreadystatechange=function(){
+    if(xhr.readyState===4&&xhr.status===200){
+      try{ var o=JSON.parse(xhr.responseText); if(o&&o.updated_ts)gotAnchor(o.updated_ts); }catch(e){}
+    }
+  };
+  xhr.send();
+}
+function beiDate(){
+  if(baseRealMs>0){
+    var elapsed=Date.now()-baseLocal;      // 设备时钟走时(秒速正常,仅时区显示偏)
+    return new Date(baseRealMs+elapsed+8*3600*1000); // 真实时刻+8h=北京时间, 再按UTC读
+  }
+  return new Date(new Date().getTime()+8*3600*1000); // 兜底: 无锚点时用设备时间
+}
 function tick(){
   var d=beiDate();
   document.getElementById('h').innerHTML=pad2(d.getUTCHours())+':'+pad2(d.getUTCMinutes());
@@ -60,6 +85,8 @@ function tick(){
   document.getElementById('wk').innerHTML=WEEK[d.getUTCDay()];
   document.getElementById('lunar').innerHTML='农历'+lunarLabel(d.getUTCFullYear(),d.getUTCMonth()+1,d.getUTCDate());
 }
+loadAnchor();
+setInterval(loadAnchor,5*60*1000); // 每5分钟重新校准(天气30分钟更新一次)
 tick();
 setInterval(tick,1000);
 </script>
