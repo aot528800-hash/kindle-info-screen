@@ -178,21 +178,61 @@ function $(id) { return document.getElementById(id); }
 function pad2(n) { return n < 10 ? "0" + n : "" + n; }
 var WEEK = ["周日","周一","周二","周三","周四","周五","周六"];
 
-/* 权威时间锚定：以 weather.json 的 updated_ts(真实北京时间Unix秒)为基准，
-   绕开 Kindle 浏览器被偏移 8 小时的本地时钟。 */
-var baseRealMs = 0;
-var baseLocal = 0;
-function gotAnchor(epochSec) {
-  if (!epochSec) return;
-  baseRealMs = epochSec * 1000;
-  baseLocal = new Date().getTime();
+/* ============ 时间引擎 v3: HTTP头为唯一权威, 永远不展示错误时间 ============
+   HTTP Date 头: 每次HTTP响应必带, 服务器真实GMT, 永不陈旧、不依赖Actions、不依赖设备钟
+   锚点(weather.json updated_ts): 仅当从未拿到HTTP头时兜底; 宽松容差(-9h~+13h)覆盖
+        Kindle设备钟偏8h的误判; 不与已有来源倒退
+   本地钟: 最后保命(已知偏8h, 仅保证不崩溃)
+===================================================================== */
+var BEIJING_OFFSET = 8 * 3600 * 1000;
+var ANCHOR_EARLY_MS = 9 * 3600 * 1000;   // 设备可能偏8h: 锚点"看起来"提前最多9h可接受
+var ANCHOR_LATE_MS  = 15 * 60 * 1000;    // 锚点最多滞后15分钟(超过即陈旧, 弃用)
+var srcRank = 0;       // 3=HTTP头 2=锚点 1=本地钟
+var baseRealMs = 0;    // 已校准的真实UTC epoch ms
+var baseLocal = 0;     // 校准时的设备时刻
+var lastSync = 0;      // 最近一次成功校准的设备时刻
+
+/* —— 层级3兜底: 直接用设备钟(偏8h, 仅当无任何校准源时) —— */
+function fallbackBei() {
+  return new Date(new Date().getTime() + BEIJING_OFFSET);
 }
-function beiDate() {
+/* —— 返回当前可用的"真实UTC epoch ms", 失败返回 null —— */
+function realEpochMs() {
   if (baseRealMs > 0) {
-    var elapsed = new Date().getTime() - baseLocal;   // 设备钟走时(秒速正常,仅显示偏)
-    return new Date(baseRealMs + elapsed + 8 * 3600 * 1000); // 真实时刻+8h=北京时间,按UTC读
+    var elapsed = new Date().getTime() - baseLocal;
+    return baseRealMs + elapsed;
   }
-  return new Date(new Date().getTime() + 8 * 3600 * 1000);   // 兜底
+  return null;
+}
+/* —— 主入口: 得到北京时间 Date —— */
+function beiDate() {
+  var real = realEpochMs();
+  if (real !== null) return new Date(real + BEIJING_OFFSET);
+  return fallbackBei();
+}
+/* —— 当前使用的等级(用于调试/页脚) —— */
+function timeSource() { return lastSync > 0 ? 3 : 1; }
+/* —— 层级2: weather.json 锚点(仅当从未拿到HTTP头时使用; 宽松容差) —— */
+function gotAnchor(epochSec, fetchAtMs) {
+  if (!epochSec) return;
+  if (lastSync > 0) return;              // 已有更权威来源, 锚点不用
+  var t = epochSec * 1000;
+  var s = Number(fetchAtMs) || new Date().getTime();
+  var age = s - t;
+  if (age < -ANCHOR_EARLY_MS || age > ANCHOR_LATE_MS) return;  // 离谱偏差 -> 弃用
+  if (baseRealMs > 0 && t < baseRealMs) return;  // 不比已有新 -> 防倒退
+  baseRealMs = t;
+  baseLocal = s;
+  lastSync = s;
+  srcRank = 2;
+}
+/* —— 层级1: HTTP Date 头(服务器真实GMT, 优先级最高) —— */
+function gotHttpDate(gmtMs) {
+  if (!gmtMs) return;
+  baseRealMs = gmtMs;
+  baseLocal = new Date().getTime();
+  lastSync = baseLocal;
+  srcRank = 3;
 }
 
 function helloByHour(h) {
@@ -243,12 +283,23 @@ function dressAdvice(temp, weather) {
 }
 
 function loadData() {
+  var fetchAtMs = new Date().getTime();
   var xhr = new XMLHttpRequest();
-  xhr.open("GET", "weather.json?t=" + new Date().getTime(), true);
+  xhr.open("GET", "weather.json?t=" + fetchAtMs, true);
   xhr.onreadystatechange = function () {
     if (xhr.readyState !== 4) return;
-    if (xhr.status !== 200) { $("loading").innerHTML = "数据获取失败，5分钟后自动重试"; $("loading").style.display = "block"; return; }
-    try { var obj = JSON.parse(xhr.responseText); gotAnchor(obj.updated_ts); renderAll(obj); } catch (e) {}
+    // 层级1: HTTP Date 头 = 服务器真实 GMT, 优先级最高, 永远新鲜
+    var dHdr = xhr.getResponseHeader ? xhr.getResponseHeader("Date") : null;
+    if (dHdr) {
+      var gmtMs = Date.parse(dHdr);
+      if (!isNaN(gmtMs)) gotHttpDate(gmtMs);
+    }
+    if (xhr.status !== 200) { $("loading").innerHTML = "数据获取失败，1分钟后自动重试"; $("loading").style.display = "block"; return; }
+    try {
+      var obj = JSON.parse(xhr.responseText);
+      gotAnchor(obj.updated_ts, fetchAtMs);   // 层级2: 权威锚点(内部校验新鲜度)
+      renderAll(obj);
+    } catch (e) {}
   };
   xhr.onerror = function () {};
   try { xhr.send(); } catch (e) {}
@@ -287,6 +338,7 @@ function renderAll(d) {
   $("fcList").innerHTML = html || "暂无数据";
 
   $("footSrc").innerHTML = "数据：中国天气网（中国气象局官方）· " + (d.updated_local || "--") + " 更新";
+  $("footSrc").innerHTML += " · 时间源：" + ["本地钟","锚点","服务器"][timeSource()];
 }
 
 function init() {
