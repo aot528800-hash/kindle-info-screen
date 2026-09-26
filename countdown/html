@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>倒计时</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;background:#ffffff;}
+body{
+  color:#111111;
+  font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Heiti SC",sans-serif;
+  text-align:center;
+  -webkit-text-size-adjust:100%;
+}
+/* ---- 设置态 ---- */
+#set{
+  display:-webkit-box;display:-webkit-flex;display:flex;
+  -webkit-box-orient:vertical;-webkit-flex-direction:column;flex-direction:column;
+  -webkit-box-align:center;-webkit-align-items:center;align-items:center;
+  -webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;
+  min-height:100%;padding-bottom:70px;
+}
+#set .t1{font-size:44px;font-weight:bold;letter-spacing:6px;margin-bottom:40px;}
+.pick{display:-webkit-box;display:-webkit-flex;display:flex;margin-bottom:44px;}
+.pick .col{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-orient:vertical;-webkit-flex-direction:column;flex-direction:column;-webkit-box-align:center;-webkit-align-items:center;}
+.pick .col+.col{margin-left:34px;}
+.pick .col .lab{font-size:24px;font-weight:bold;color:#555;letter-spacing:2px;margin-top:14px;}
+.pick input{
+  width:128px;height:128px;border:3px solid #111;border-radius:14px;
+  font-size:72px;font-weight:bold;text-align:center;color:#111;background:#fafafa;
+  font-family:inherit;
+}
+.pick .sep{font-size:72px;font-weight:bold;color:#111;align-self:flex-start;margin-top:18px;padding:0 8px;}
+#go{
+  width:340px;padding:24px 0;font-size:36px;font-weight:bold;
+  background:#111;color:#fff;border:none;border-radius:14px;letter-spacing:8px;
+}
+#go:active{opacity:.8;}
+.min-hint{font-size:20px;color:#8a8a8a;margin-top:22px;letter-spacing:1px;}
+
+/* ---- 倒计时态 ---- */
+#run{display:none;}
+#run .remain{
+  white-space:nowrap;font-size:150px;font-weight:bold;line-height:1;
+  letter-spacing:-6px;margin-top:14vh;
+}
+#run .remain .ms{font-size:84px;font-weight:600;color:#777777;letter-spacing:-3px;}
+#run .hint{font-size:26px;font-weight:bold;color:#111;margin-top:8vh;letter-spacing:4px;}
+#run .hint-d{font-size:20px;color:#8a8a8a;margin-top:16px;letter-spacing:1px;}
+#run .box{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;margin-top:30px;}
+#run .pname{font-size:22px;color:#555;letter-spacing:3px;border:2px solid #888;border-radius:10px;padding:8px 22px;}
+#done{display:none;}
+#done .big{font-size:120px;font-weight:bold;color:#111;margin-top:24vh;letter-spacing:6px;}
+#done .sub{font-size:26px;color:#555;margin-top:24px;letter-spacing:2px;}
+
+/* ---- 底部导航 ---- */
+.nav{position:fixed;left:0;right:0;bottom:0;border-top:2px solid #000;background:#fff;display:-webkit-box;display:-webkit-flex;display:flex;}
+.nav a{-webkit-box-flex:1;-webkit-flex:1;flex:1;text-align:center;font-size:20px;font-weight:bold;padding:16px 0;color:#111;text-decoration:none;letter-spacing:2px;}
+.nav a+a{border-left:2px solid #000;}
+.nav .on{background:#111;color:#fff;}
+</style>
+</head>
+<body>
+
+<div id="set">
+  <div class="t1">倒计时设置</div>
+  <div class="pick">
+    <div class="col">
+      <input id="hh" type="number" min="0" max="99" value="0">
+      <div class="lab">时</div>
+    </div>
+    <div class="sep">:</div>
+    <div class="col">
+      <input id="mm" type="number" min="0" max="59" value="10">
+      <div class="lab">分</div>
+    </div>
+    <div class="sep">:</div>
+    <div class="col">
+      <input id="ss" type="number" min="0" max="59" value="0">
+      <div class="lab">秒</div>
+    </div>
+  </div>
+  <button id="go" onclick="startCd()">开 始</button>
+  <div class="min-hint">时间请填写数字。点「开始」后不可暂停或终止，只能刷新本页重来</div>
+</div>
+
+<div id="run">
+  <div class="remain"><span id="rhm">--:--</span><span class="ms" id="rs">:--</span></div>
+  <div class="hint">倒计时进行中</div>
+  <div class="hint-d">无法暂停或停止 · 刷新本页可重新设置</div>
+  <div class="box"><div class="pname" id="pname">--</div></div>
+</div>
+
+<div id="done">
+  <div class="big">时间到！</div>
+  <div class="sub">倒计时结束</div>
+</div>
+
+<div class="nav">
+  <a href="index.html">江津信息屏</a>
+  <a href="c.html">极简时钟</a>
+  <a href="countdown.html" class="on">倒计时</a>
+</div>
+
+<script>
+function $(id){return document.getElementById(id);}
+function pad2(n){return n<10?'0'+n:''+n;}
+var running=false;
+function startCd(){
+  if(running)return;
+  var h=parseInt($('hh').value,10)||0;
+  var m=parseInt($('mm').value,10)||0;
+  var s=parseInt($('ss').value,10)||0;
+  var total=h*3600+m*60+s;
+  if(total<=0){$('hh').value=0;$('mm').value=10;$('ss').value=0;alert('请设置大于0的时间');return;}
+  running=true;
+  var end=-1;
+  var label=(h>0?h+'小时':'')+(m>0?m+'分':'')+s+'秒';
+  $('pname').innerHTML='已设 '+label;
+  $('set').style.display='none';
+  $('run').style.display='block';
+  function tick(){
+    if(end<0)end=iNow()+total*1000;
+    var left=end-iNow();
+    if(left<=0){
+      $('rhm').innerHTML='00:00';
+      $('rs').innerHTML=':00';
+      $('run').style.display='none';
+      $('done').style.display='block';
+      return;
+    }
+    var hh=Math.floor(left/3600000);
+    var mm=Math.floor(left%3600000/60000);
+    var ss=Math.floor(left%60000/1000);
+    var cs=Math.floor(left%1000/100);
+    $('rhm').innerHTML=pad2(hh)+':'+pad2(mm);
+    $('rs').innerHTML=':'+pad2(ss)+'<span style="font-size:44px;color:#999;">'+cs+'</span>';
+  }
+  tick();
+  setInterval(tick,100);
+}
+/* 倒计时用本地真实时间差即可(秒速正常), 用 HTTP 头校准起点让"开始时刻"准确 */
+var REAL_NOW_BASE=0,REAL_NOW_LOCAL=0;
+function iNow(){
+  if(REAL_NOW_BASE>0)return REAL_NOW_BASE+(Date.now()-REAL_NOW_LOCAL);
+  return Date.now();
+}
+(function syncNow(){
+  var xhr=new XMLHttpRequest();
+  xhr.open('GET','weather.json?t='+Date.now(),true);
+  xhr.onreadystatechange=function(){
+    if(xhr.readyState===4&&xhr.status===200){
+      var dHdr=xhr.getResponseHeader?xhr.getResponseHeader('Date'):null;
+      if(dHdr){var g=Date.parse(dHdr);if(!isNaN(g)){REAL_NOW_BASE=g;REAL_NOW_LOCAL=Date.now();}}
+    }
+  };
+  try{xhr.send();}catch(e){}
+})();
+</script>
+</body>
+</html>
