@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>日历 · 放假调休节气</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;background:#fff;}
+body{
+  color:#111111;
+  font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Heiti SC",sans-serif;
+  text-align:center;padding:14px 14px 96px;
+  -webkit-text-size-adjust:100%;
+}
+/* 头部 */
+.hd{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:center;-webkit-align-items:center;align-items:center;-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;margin-bottom:12px;}
+.hd .yr{font-size:38px;font-weight:bold;letter-spacing:3px;}
+.hd .nav2{font-size:30px;width:56px;cursor:pointer;color:#111;font-weight:bold;-webkit-tap-highlight-color:rgba(0,0,0,0);}
+.hd .nav2.l{margin-right:24px;}
+.hd .nav2.r{margin-left:24px;}
+/* 图例 */
+.leg{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;margin-bottom:12px;font-size:15px;}
+.leg span{margin:0 10px;color:#555;}
+.leg b{display:inline-block;width:16px;height:16px;border-radius:4px;margin-right:4px;vertical-align:-3px;}
+.leg .h{background:#e55039;}
+.leg .d{background:#f39c12;}
+.leg .j{background:#2e8b57;}
+/* 星期行 */
+.wrow{display:-webkit-box;display:-webkit-flex;display:flex;}
+.wrow div{-webkit-box-flex:1;-webkit-flex:1;flex:1;font-size:19px;font-weight:bold;padding:8px 0;}
+.wrow div.sun{color:#e55039;}
+.wrow div.sat{color:#e55039;}
+/* 月历表格 */
+table.cal{width:100%;border-collapse:collapse;table-layout:fixed;}
+table.cal th{font-size:18px;font-weight:bold;padding:6px 0;border-bottom:2px solid #000;}
+table.cal th.sun,table.cal th.sat{color:#e55039;}
+table.cal td{
+  height:64px;border:1px solid #eee;vertical-align:top;padding:4px 3px;position:relative;
+}
+td.empty{background:#fafaf9;border:1px solid #f2f1ef;}
+/* 今天 */
+td.today{box-shadow:inset 0 0 0 3px #111111;}
+/* 日期数字 */
+td .dnum{font-size:24px;font-weight:bold;text-align:left;line-height:1;}
+td.df .dnum{color:#bbb;}
+td.work .dnum{color:#111;}
+td.sun .dnum,td.sat .dnum{color:#e55039;}
+/* 标签 */
+td .tag{position:absolute;left:3px;bottom:3px;right:3px;text-align:left;font-size:12px;line-height:1.15;font-weight:bold;}
+.tag .t{display:block;color:#e55039;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tag .t.work{color:#111;}
+.tag .t.jq{color:#2e8b57;}
+.tag .t.work2{color:#f39c12;}
+/* 底图例二行 */
+.foot{font-size:14px;color:#888;margin-top:14px;}
+/* 导航 */
+.nav{position:fixed;left:0;right:0;bottom:0;background:#fff;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:stretch;-webkit-align-items:stretch;align-items:stretch;-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;padding:10px 12px 10px 12px;border-top:1px solid #e0ded8;}
+.nav a{-webkit-box-flex:1;-webkit-flex:1;flex:1;max-width:230px;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-orient:vertical;-webkit-flex-direction:column;flex-direction:column;-webkit-box-align:center;-webkit-align-items:center;align-items:center;-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;margin:0 4px;padding:10px 0 8px;border-radius:14px;font-size:19px;font-weight:bold;color:#555555;text-decoration:none;letter-spacing:1px;-webkit-tap-highlight-color:rgba(0,0,0,0);}
+.nav a i,.nav a b{font-style:normal;font-weight:bold;}
+.nav a i{display:block;font-size:26px;line-height:1;margin-bottom:6px;color:#999999;}
+.nav a.on{background:#111111;color:#ffffff;}
+.nav a.on i,.nav a.on b{color:#ffffff;}
+</style>
+</head>
+<body>
+
+<div class="hd">
+  <span class="nav2 l" onclick="step(-1)">‹</span>
+  <span class="yr" id="ym">--</span>
+  <span class="nav2 r" onclick="step(1)">›</span>
+</div>
+
+<div class="leg">
+  <span><b class="h"></b>放假</span>
+  <span><b class="d"></b>调休上班</span>
+  <span><b class="j"></b>节气</span>
+</div>
+
+<table class="cal" id="cal">
+  <tr>
+    <th class="sun">日</th><th>一</th><th>二</th><th>三</th><th>四</th><th>五</th><th class="sat">六</th>
+  </tr>
+  <tbody id="tbody"></tbody>
+</table>
+
+<div class="foot" id="foot">黑色方框 = 今天</div>
+
+<div class="nav">
+  <a href="index.html"><i>☀</i><b>江津信息屏</b></a>
+  <a href="c.html"><i>◷</i><b>极简时钟</b></a>
+  <a href="countdown.html"><i>⏱</i><b>倒计时</b></a>
+  <a href="calendar.html" class="on"><i>▦</i><b>日历</b></a>
+</div>
+
+<script>
+/* ======== 2026年 国务院 放假调休安排 (国办发明电〔2025〕7号) ========
+   格式: 'YYYY-M-D' -> {h:'放假描述', w:'调休上班描述', n:'节日名'} */
+var HOL = {
+  // 元旦
+  '2026-1-1':{n:'元旦',h:'元旦'},
+  '2026-1-2':{h:'元旦'},
+  '2026-1-3':{n:'元旦',h:'元旦'},
+  '2026-1-4':{w:'补班',d:'补1.1'},
+  // 春节
+  '2026-2-14':{w:'补班',d:'补2.16'},
+  '2026-2-15':{n:'除夕',h:'春节'},
+  '2026-2-16':{h:'春节'},
+  '2026-2-17':{h:'春节'},
+  '2026-2-18':{h:'春节'},
+  '2026-2-19':{h:'春节'},
+  '2026-2-20':{h:'春节'},
+  '2026-2-21':{n:'春节',h:'春节'},
+  '2026-2-22':{n:'春节',h:'春节'},
+  '2026-2-23':{n:'春节',h:'春节'},
+  '2026-2-28':{w:'补班',d:'补2.23'},
+  // 清明
+  '2026-4-4':{h:'清明'},
+  '2026-4-5':{n:'清明',h:'清明'},
+  '2026-4-6':{h:'清明'},
+  // 劳动节
+  '2026-5-1':{n:'劳动节',h:'劳动节'},
+  '2026-5-2':{h:'劳动节'},
+  '2026-5-3':{h:'劳动节'},
+  '2026-5-4':{h:'劳动节'},
+  '2026-5-5':{h:'劳动节'},
+  '2026-5-9':{w:'补班',d:'补5.4'},
+  // 端午
+  '2026-6-19':{n:'端午',h:'端午'},
+  '2026-6-20':{h:'端午'},
+  '2026-6-21':{h:'端午'},
+  // 中秋
+  '2026-9-25':{n:'中秋',h:'中秋'},
+  '2026-9-26':{h:'中秋'},
+  '2026-9-27':{h:'中秋'},
+  // 国庆
+  '2026-9-20':{w:'补班',d:'补10.1'},
+  '2026-10-1':{n:'国庆',h:'国庆'},
+  '2026-10-2':{n:'国庆',h:'国庆'},
+  '2026-10-3':{h:'国庆'},
+  '2026-10-4':{h:'国庆'},
+  '2026-10-5':{h:'国庆'},
+  '2026-10-6':{h:'国庆'},
+  '2026-10-7':{h:'国庆'},
+  '2026-10-10':{w:'补班',d:'补10.7'}
+};
+/* ======== 2026年 二十四节气 ======== */
+var SOL = {
+  '2026-2-4':'立春','2026-2-18':'雨水','2026-3-5':'惊蛰','2026-3-20':'春分',
+  '2026-4-5':'清明','2026-4-20':'谷雨','2026-5-5':'立夏','2026-5-21':'小满',
+  '2026-6-6':'芒种','2026-6-21':'夏至','2026-7-7':'小暑','2026-7-23':'大暑',
+  '2026-8-7':'立秋','2026-8-23':'处暑','2026-9-7':'白露','2026-9-23':'秋分',
+  '2026-10-8':'寒露','2026-10-23':'霜降','2026-11-7':'立冬','2026-11-22':'小雪',
+  '2026-12-7':'大雪','2026-12-22':'冬至','2026-1-5':'小寒','2026-1-20':'大寒'
+};
+
+function $(id){return document.getElementById(id);}
+var viewY, viewM;   // 当前视图 年/月 (M: 0-11)
+
+function padNum(y,m,d){return y+'-'+m+'-'+d;}
+function todayStr(){
+  var d=beiDate();
+  return padNum(d.getUTCFullYear(), d.getUTCMonth()+1, d.getUTCDate());
+}
+function step(delta){
+  viewM += delta;
+  if(viewM<0){viewM=11;viewY--;}
+  if(viewM>11){viewM=0;viewY++;}
+  render();
+}
+
+function render(){
+  $('ym').innerHTML = viewY+'年'+(viewM+1)+'月';
+  var tbody = $('tbody');
+  tbody.innerHTML='';
+  var first = new Date(Date.UTC(viewY, viewM, 1));
+  var firstDow = first.getUTCDay();
+  var daysInMonth = new Date(Date.UTC(viewY, viewM+1, 0)).getUTCDate();
+  var today = todayStr();
+  var html='';
+  var cell=0;
+  // 前导空格
+  for(var i=0;i<firstDow;i++){
+    html+='<td class="empty"></td>'; cell++;
+  }
+  for(var day=1; day<=daysInMonth; day++){
+    var y=viewY, m=viewM+1;
+    var key=padNum(y,m,day);
+    var dow = new Date(Date.UTC(viewY, viewM, day)).getUTCDay();
+    // 类名
+    var cls='';
+    if(key===today) cls+=' today ';
+    if(dow===0||dow===6) cls+=' sat ';
+    var hol=HOL[key], sol=SOL[key];
+    // 标签
+    var tagHtml='';
+    if(hol&&hol.h) tagHtml+='<span class="t">'+(hol.n||'\u00A0')+'</span>';
+    else if(hol&&hol.w) tagHtml+='<span class="t work2">班</span>';
+    if(sol) tagHtml+='<span class="t jq">'+sol+'</span>';
+    html+='<td class="'+cls.trim()+'"><div class="dnum">'+day+'</div>'+(tagHtml?'<div class="tag">'+tagHtml+'</div>':'')+'</td>';
+    cell++;
+  }
+  // 补尾
+  var rem = (7 - (cell%7))%7;
+  for(var j=0;j<rem;j++) html+='<td class="empty"></td>';
+  tbody.innerHTML=html;
+}
+
+/* —— 时间引擎: 用 HTTP 头校准, 绕开 Kindle 时区偏8h —— */
+var baseRealMs=0, baseLocal=0;
+function gotHttpDate(gmtMs){baseRealMs=gmtMs;baseLocal=Date.now();}
+function beiDate(){
+  if(baseRealMs>0)return new Date(baseRealMs+(Date.now()-baseLocal));
+  return new Date();
+}
+(function sync(){
+  var xhr=new XMLHttpRequest();
+  xhr.open('GET','weather.json?t='+Date.now(),true);
+  xhr.onreadystatechange=function(){
+    if(xhr.readyState===4&&xhr.status===200){
+      var h=xhr.getResponseHeader?xhr.getResponseHeader('Date'):null;
+      if(h){var g=Date.parse(h);if(!isNaN(g))gotHttpDate(g);}
+      if(baseRealMs>0)init();
+    }
+  };
+  try{xhr.send();}catch(e){init();}
+})();
+function init(){
+  var d=beiDate();
+  viewY=d.getUTCFullYear(); viewM=d.getUTCMonth();
+  render();
+}
+setTimeout(function(){ if(typeof viewY==='undefined'){ viewY=2026; viewM=8; render(); } },3000);
+</script>
+</body>
+</html>
