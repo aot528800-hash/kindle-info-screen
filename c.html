@@ -7,25 +7,29 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{height:100%;}
-body{background:#ffffff;color:#111111;font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Heiti SC",sans-serif;display:flex;align-items:center;justify-content:center;text-align:center;}
-.wrap{width:100%;padding:30px 30px;}
-.time{font-size:150px;font-weight:500;letter-spacing:-4px;line-height:1;color:#111111;white-space:nowrap;}
-.sec{font-size:60px;font-weight:400;color:#8a8a8a;letter-spacing:-2px;}
-.sub{margin-top:26px;}
-.date{font-size:40px;font-weight:500;color:#111111;display:inline;}
-.wk{font-size:40px;font-weight:400;color:#555555;display:inline;}
-.lunar{font-size:32px;font-weight:400;color:#8a8a8a;margin-top:14px;}
-.loc{font-size:22px;font-weight:400;color:#c0bdb4;margin-top:26px;letter-spacing:2px;}
+body{background:#ffffff;color:#111111;font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Heiti SC",sans-serif;display:flex;align-items:center;justify-content:center;text-align:left;}
+.wrap{display:flex;align-items:center;width:100%;max-width:1000px;padding:30px 40px;}
+.time{font-size:130px;font-weight:500;letter-spacing:-4px;line-height:1;color:#111111;white-space:nowrap;}
+.sec{font-size:56px;font-weight:400;color:#8a8a8a;letter-spacing:-2px;}
+.big{font-weight:500;color:#111111;}
+.divider{width:2px;background:#d6d3cb;margin:0 44px;align-self:stretch;min-height:150px;}
+.right{flex:0 0 auto;text-align:left;}
+.date{font-size:42px;font-weight:500;color:#111111;}
+.wk{font-size:32px;font-weight:400;color:#555555;margin-top:14px;}
+.lunar{font-size:27px;font-weight:400;color:#8a8a8a;margin-top:10px;}
+.loc{font-size:22px;font-weight:400;color:#b8b5ac;margin-top:13px;letter-spacing:1px;}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="time"><span class="big" id="h">--:--</span><span class="sec" id="sec">:--</span></div>
-  <div class="sub">
-    <span class="date" id="date">--</span><span class="wk" id="wk">　--</span>
+  <div class="divider"></div>
+  <div class="right">
+    <div class="date" id="date">--</div>
+    <div class="wk" id="wk">--</div>
     <div class="lunar" id="lunar">--</div>
+    <div class="loc">重庆市江津区</div>
   </div>
-  <div class="loc">重庆市江津区</div>
 </div>
 <script>
 var BEGIN=Date.UTC(2020,0,1);
