@@ -121,11 +121,15 @@ def main():
     fc = parse_var(text, "fc") or {}
 
     now = time.strftime("%Y-%m-%d %H:%M:%S")
+    # Actions 运行环境时区是 UTC, 但 updated_local 应显示北京时间(UTC+8)
+    # 用真实 epoch 偏移 8h 转北京时间字符串, 与 updated_ts 语义一致
+    bj = time.gmtime(int(time.time()) + 8 * 3600)
+    now_bj = time.strftime("%Y-%m-%d %H:%M:%S", bj)
     out = {
         "source": "中国天气网 official weather.com.cn",
         "source_type": "CMA",
         "city": CITY_NAME,
-        "updated_local": now,
+        "updated_local": now_bj,
         "updated_ts": int(time.time()),
     }
 
