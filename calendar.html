@@ -5,71 +5,104 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
 <title>日历 · 放假调休节气</title>
 <style>
+/* ========== 全局 ========== */
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{height:100%;background:#fff;}
 body{
   color:#111111;
   font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Heiti SC",sans-serif;
-  text-align:center;padding:16px 12px 96px;
-  -webkit-text-size-adjust:100%;
+  text-align:center;padding:14px 10px 100px;
+  -webkit-text-size-adjust:none;   /* 禁掉Kindle自动放大字号, 否则撑破固定行高 */
+  text-size-adjust:none;
 }
-/* ===== 头部: 年月 + 翻月 ===== */
-.hd{display:-webkit-box;display:-webkit-flex;display:flex;align-items:center;justify-content:center;margin-bottom:14px;position:relative;}
-.hd .yr{font-size:36px;font-weight:bold;letter-spacing:4px;}
+/* ========== 头部: 年月 + 翻月 (table三列, 物理隔离绝无重叠, 老内核最稳) ========== */
+.hd{
+  display:table;table-layout:fixed;width:100%;
+  margin-bottom:12px;border-collapse:collapse;
+}
+.hd .c{
+  display:table-cell;vertical-align:middle;text-align:center;
+  -webkit-tap-highlight-color:rgba(0,0,0,0);
+}
+.hd .l,.hd .r{width:18%;}
+.hd .m{width:64%;}
+.hd .yr{font-size:32px;font-weight:bold;letter-spacing:3px;display:inline-block;}
 .hd .nav2{
-  font-size:44px;line-height:1;width:58px;cursor:pointer;color:#111;
-  font-weight:normal;text-align:center;-webkit-tap-highlight-color:rgba(0,0,0,0);
+  font-size:42px;line-height:1;cursor:pointer;color:#111;
+  display:inline-block;padding:6px 16px;
 }
-.hd .nav2.l{position:absolute;left:8px;top:50%;margin-top:-22px;}
-.hd .nav2.r{position:absolute;right:8px;top:50%;margin-top:-22px;}
-/* ===== 图例 ===== */
-.leg{display:-webkit-box;display:-webkit-flex;display:flex;justify-content:center;margin-bottom:12px;font-size:14px;}
-.leg span{margin:0 8px;color:#777;display:-webkit-box;display:-webkit-flex;display:flex;align-items:center;}
-.leg b{display:inline-block;width:14px;height:14px;border-radius:3px;margin-right:5px;flex:none;}
-.leg .h{background:#e55039;}
-.leg .d{background:#f5c542;}
-.leg .j{background:#2e8b57;}
-/* ===== 星期标题 ===== */
-.wrow{display:-webkit-box;display:-webkit-flex;display:flex;margin-bottom:4px;}
-.wrow div{
-  -webkit-box-flex:1;-webkit-flex:1;flex:1;text-align:center;
-  font-size:17px;font-weight:bold;color:#111;padding:6px 0;letter-spacing:1px;
+/* ========== 图例 (黑白灰, 用深浅区分) ========== */
+.leg{text-align:center;margin-bottom:10px;font-size:14px;}
+.leg span{display:inline-block;margin:0 8px;color:#777;line-height:16px;}
+.leg b{display:inline-block;width:14px;height:14px;border-radius:3px;margin-right:5px;vertical-align:-2px;}
+.leg .h{background:#111;}       /* 放假 = 黑块 */
+.leg .d{background:#888;}       /* 调休 = 灰块 */
+.leg .j{background:#d8d6d2;}    /* 节气 = 浅灰块 */
+/* ========== 日历表格: table布局(老内核最稳, 天然等宽等高对齐) ==========
+   关键: border-collapse:separate + border-spacing:0 + 每格独立边框
+   (collapse 模式下单格加粗边框会触发内核重算列宽 -> 整行错位) */
+table.cal{
+  width:100%;table-layout:fixed;
+  border-collapse:separate;border-spacing:0;
+  border-left:1px solid #b9b6b0;border-top:1px solid #111;
 }
-.wrow div.hk{color:#e55039;}
-/* ===== 月历网格 (纯flex, 不用table, Kindle兼容最好) ===== */
-.cal{display:block;border-top:2px solid #111;border-left:2px solid #111;}
-.row{display:-webkit-box;display:-webkit-flex;display:flex;}
-.cell{
-  -webkit-box-flex:1;-webkit-flex:1;flex:1;position:relative;
-  height:66px;border-right:2px solid #111;border-bottom:2px solid #111;
-  overflow:hidden;
+table.cal th,table.cal td{
+  width:14.2857%;padding:0;
+  border-right:1px solid #b9b6b0;border-bottom:1px solid #b9b6b0;
 }
-.cell .dnum{font-size:26px;font-weight:bold;text-align:center;line-height:1;margin-top:6px;}
-.cell .tag{font-size:11px;line-height:1.1;text-align:center;margin-top:8px;padding:0 2px;}
-.cell .tag .t{display:block;color:#111;}
-/* 非本月(前后补位): 空心 */
-.cell.off{background:#f5f4f2;border-right:2px solid #e6e4e0;border-bottom:2px solid #e6e4e0;}
-.cell.off .dnum{color:#c9c6c0;}
-/* 周六周日日期红 */
-.cell.wc .dnum{color:#e55039;}
-.cell.wc .tag .t{color:#e55039;}
-/* 标签颜色 */
-.cell.hol .tag .t{color:#e55039;font-size:11px;}
-.cell.adj .tag .t{color:#b8860b;font-weight:bold;font-size:11px;}
-.cell.jq .tag .t{color:#2e8b57;font-size:10.5px;}
-/* 今天: 实线边框 + 浅底(兼容旧内核, 不用inset阴影) */
-.cell.today{border:3px solid #111;background:#f0f0ee;}
-.cell.today .dnum{margin-top:4px;}
-/* 顶部边线修正: 第一行格子补上上边 */
-.cal .row:first-child .cell{border-top:0;margin-top:0;}
-.cal .row .cell:first-child{border-left:0;}
-/* ===== 页脚 ===== */
+/* 星期标题行 */
+table.cal th{
+  font-size:16px;font-weight:bold;color:#111;
+  padding:6px 0;letter-spacing:1px;background:#fff;
+  border-bottom:2px solid #111;
+}
+/* 格子: 固定结构 = 日期行30px + 标签行28px, 所有格子完全一致 */
+td.cell{height:64px;vertical-align:top;background:#fff;}
+/* 日期数字: 今天用内层黑框(不碰td边框, 绝不改变列宽) */
+td.cell .dnum{
+  height:30px;line-height:30px;font-size:26px;font-weight:bold;color:#111;
+}
+td.cell .tags{
+  height:28px;overflow:hidden;padding:0 2px;
+  word-break:keep-all;line-height:14px;
+}
+td.cell .tags span{
+  display:block;line-height:14px;font-size:11px;color:#111;
+  overflow:hidden;white-space:nowrap;
+}
+/* 放假 = 纯黑粗体大号 */
+td.cell.hol .tags span{color:#111;font-weight:bold;font-size:12px;line-height:15px;}
+/* 调休 = 深灰粗体 */
+td.cell.adj .tags span{color:#666;font-weight:bold;font-size:11px;}
+/* 节气 = 中灰 */
+td.cell.jq .tags span{color:#8a8a8a;font-size:11px;}
+/* 周末 = 日期加粗并加框强调 (墨水屏清晰) */
+td.cell.wc .dnum{font-weight:bold;}
+/* 今天 = 浅灰底 + 日期数字黑色粗框(内层元素, 不影响表格列宽计算) */
+td.cell.today{background:#e8e8e6;}
+td.cell.today .dnum{
+  color:#111;border:3px solid #111;background:#fff;
+  height:30px;line-height:24px;margin:0 2px;
+}
+/* 非本月补位 = 浅底 + 灰字 */
+td.cell.off{background:#f2f0ec;}
+td.cell.off .dnum{color:#c8c5bf;}
+td.cell.off .tags span{color:#c8c5bf;}
+/* ========== 页脚 ========== */
 .foot{font-size:13px;color:#999;margin-top:12px;letter-spacing:1px;}
-/* ===== 导航 ===== */
-.nav{position:fixed;left:0;right:0;bottom:0;background:#fff;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:stretch;-webkit-align-items:stretch;align-items:stretch;-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;padding:10px 12px 10px 12px;border-top:1px solid #e0ded8;}
-.nav a{-webkit-box-flex:1;-webkit-flex:1;flex:1;max-width:200px;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-orient:vertical;-webkit-flex-direction:column;flex-direction:column;-webkit-box-align:center;-webkit-align-items:center;align-items:center;-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;margin:0 4px;padding:10px 0 8px;border-radius:14px;font-size:19px;font-weight:bold;color:#555555;text-decoration:none;letter-spacing:1px;-webkit-tap-highlight-color:rgba(0,0,0,0);}
+/* ========== 导航 ========== */
+.nav{
+  position:fixed;left:0;right:0;bottom:0;background:#fff;
+  text-align:center;padding:10px 6px 10px;border-top:1px solid #e0ded8;
+}
+.nav a{
+  display:inline-block;width:24%;max-width:200px;
+  margin:0 0.5%;padding:8px 0 7px;border-radius:12px;
+  font-size:18px;font-weight:bold;color:#555555;text-decoration:none;
+  letter-spacing:1px;-webkit-tap-highlight-color:rgba(0,0,0,0);
+}
 .nav a i,.nav a b{font-style:normal;font-weight:bold;}
-.nav a i{display:block;font-size:26px;line-height:1;margin-bottom:6px;color:#999999;}
+.nav a i{display:block;font-size:24px;line-height:1;margin-bottom:5px;color:#999999;}
 .nav a.on{background:#111111;color:#ffffff;}
 .nav a.on i,.nav a.on b{color:#ffffff;}
 </style>
@@ -77,9 +110,9 @@ body{
 <body>
 
 <div class="hd">
-  <span class="nav2 l" onclick="step(-1)">‹</span>
-  <span class="yr" id="ym">--</span>
-  <span class="nav2 r" onclick="step(1)">›</span>
+  <div class="c l"><span class="nav2" onclick="step(-1)">‹</span></div>
+  <div class="c m"><span class="yr" id="ym">--</span></div>
+  <div class="c r"><span class="nav2" onclick="step(1)">›</span></div>
 </div>
 
 <div class="leg">
@@ -88,13 +121,9 @@ body{
   <span><b class="j"></b>节气</span>
 </div>
 
-<div class="wrow">
-  <div class="hk">日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div class="hk">六</div>
-</div>
+<table class="cal" id="cal"></table>
 
-<div class="cal" id="cal"></div>
-
-<div class="foot" id="foot">黑色粗边框格子 = 今天</div>
+<div class="foot" id="foot">灰底 + 日期黑框 = 今天</div>
 
 <div class="nav">
   <a href="index.html"><i>☀</i><b>江津信息屏</b></a>
@@ -106,7 +135,7 @@ body{
 <script>
 /* ======== 2026年 国务院 放假调休安排 (国办发明电〔2025〕7号) ======== */
 var HOL = {
-  '2026-1-1':{n:'元旦'},'2026-1-2':{h:'元旦'},'2026-1-3':{h:'元旦'},
+  '2026-1-1':{n:'元旦'},'2026-1-2':{n:'元旦'},'2026-1-3':{n:'元旦'},
   '2026-1-4':{w:'班'},
   '2026-2-14':{w:'班'},
   '2026-2-15':{n:'除夕'},'2026-2-16':{},'2026-2-17':{},'2026-2-18':{},'2026-2-19':{},'2026-2-20':{},'2026-2-21':{},'2026-2-22':{},'2026-2-23':{n:'春节'},
@@ -151,48 +180,56 @@ function cellHtml(day, y, m, off){
   var dow=(new Date(Date.UTC(y,m-1,day))).getUTCDay();
   var hol=HOL[key], sol=SOL[key];
   var cls='cell';
-  if(off)cls+=' off';
-  else{
+  if(off){
+    cls+=' off';
+  } else {
     if(dow===0||dow===6)cls+=' wc';
-    if(hol&&hol.h){cls+=' hol';}
-    else if(hol&&hol.w){cls+=' adj';}
+    if(hol){ if(hol.w){cls+=' adj';} else {cls+=' hol';} }
     if(sol)cls+=' jq';
     if(key===today)cls+=' today';
+    // 今天优先保留放假/调休语义, 若两者皆无则纯today
   }
-  var dnum='<div class="dnum">'+day+'</div>';
-  var tagTxt='';
+  var dnum='<div class="dnum">'+(day===''?'':day)+'</div>';
+  var tags='';
   if(!off){
-    if(hol&&hol.n)tagTxt+='<span class="t">'+hol.n+'</span>';
-    else if(hol&&hol.w)tagTxt+='<span class="t">班</span>';
-    if(sol)tagTxt+='<span class="t">'+sol+'</span>';
+    if(hol&&hol.n)tags+='<span>'+hol.n+'</span>';
+    else if(hol&&hol.w)tags+='<span>班</span>';
+    if(sol)tags+='<span>'+sol+'</span>';
   }
-  var tagHtml=tagTxt?'<div class="tag">'+tagTxt+'</div>':'';
-  return '<div class="'+cls+'">'+dnum+tagHtml+'</div>';
+  var tagHtml=tags?'<div class="tags">'+tags+'</div>':'<div class="tags"></div>';
+  return '<td class="'+cls+'">'+dnum+tagHtml+'</td>';
 }
 
 function render(){
   $('ym').innerHTML=viewY+'年'+(viewM+1)+'月';
-  var cal=$('cal');
-  cal.innerHTML='';
   var daysInMonth=new Date(Date.UTC(viewY,viewM+1,0)).getUTCDate();
   var firstDow=new Date(Date.UTC(viewY,viewM,1)).getUTCDay();
-  var html='';
+  var html='<tr>';
+  // 星期标题
+  var wd=['日','一','二','三','四','五','六'];
+  for(var w=0;w<7;w++)html+='<th class="'+(w===0||w===6?'hk':'')+'">'+wd[w]+'</th>';
+  html+='</tr>';
   var day=1;
   var started=false;
   // 最多6个星期行
-  for(var w=0;w<6;w++){
-    html+='<div class="row">';
+  for(var r=0;r<6;r++){
+    html+='<tr>';
     for(var d=0;d<7;d++){
-      var idx=w*7+d;
-      if(!started&&idx<firstDow){html+=cellHtml('','','',true);}
-      else if(!started){started=true;html+=cellHtml(day,viewY,viewM+1,false);day++;}
-      else if(day<=daysInMonth){html+=cellHtml(day,viewY,viewM+1,false);day++;}
-      else {html+=cellHtml('','','',true);}
+      var idx=r*7+d;
+      if(!started&&idx<firstDow){
+        html+=cellHtml('','','',true);
+      } else if(!started){
+        started=true;html+=cellHtml(day,viewY,viewM+1,false);day++;
+      } else if(day<=daysInMonth){
+        html+=cellHtml(day,viewY,viewM+1,false);day++;
+      } else {
+        html+=cellHtml('','','',true);
+      }
     }
-    html+='</div>';
+    html+='</tr>';
     if(day>daysInMonth)break;   // 已填满, 提前结束
   }
-  cal.innerHTML=html;
+  $('cal').innerHTML=html;
 }
 
 /* —— 时间引擎: HTTP头校准, 绕开Kindle时区 —— */
