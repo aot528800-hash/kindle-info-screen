@@ -2,20 +2,20 @@
   "source": "中国天气网 official weather.com.cn",
   "source_type": "CMA",
   "city": "重庆市江津区",
-  "updated_local": "2026-09-28 14:26:19",
-  "updated_ts": 1790576779,
+  "updated_local": "2026-09-28 22:22:12",
+  "updated_ts": 1790605332,
   "current": {
-    "temp": "24.6",
+    "temp": "23.1",
     "weather": "雨",
-    "wd": "西北风",
-    "ws": "2级",
-    "humidity": "100%",
-    "pressure": "975",
-    "vis": "1km",
+    "wd": "西风",
+    "ws": "1级",
+    "humidity": "96%",
+    "pressure": "980",
+    "vis": "2km",
     "rain24h": "0.2mm",
-    "obstime": "14:10",
-    "aqi": "20",
-    "aqi_pm25": "20"
+    "obstime": "22:05",
+    "aqi": "15",
+    "aqi_pm25": "15"
   },
   "forecast": [
     {
@@ -23,16 +23,16 @@
       "label": "今天",
       "weather": "小雨",
       "code": "07",
-      "high": "29",
+      "high": "25",
       "low": "22"
     },
     {
       "date": "9/29",
       "label": "星期二",
-      "weather": "晴间多云",
-      "code": "01",
+      "weather": "多云",
+      "code": "02",
       "high": "28",
-      "low": "23"
+      "low": "22"
     },
     {
       "date": "9/30",
@@ -47,23 +47,23 @@
       "label": "星期四",
       "weather": "小雨",
       "code": "07",
-      "high": "23",
+      "high": "24",
       "low": "21"
     },
     {
       "date": "10/2",
       "label": "星期五",
-      "weather": "晴间多云",
-      "code": "01",
+      "weather": "小雨",
+      "code": "07",
       "high": "26",
       "low": "21"
     }
   ],
   "aqi_level": "优",
   "indices": {
-    "穿衣": "热",
+    "穿衣": "舒适",
     "空气污染扩散": "良",
-    "舒适度": "较舒适",
+    "舒适度": "舒适",
     "紫外线": "最弱",
     "逛街": "较不宜",
     "晨练": "不宜",
