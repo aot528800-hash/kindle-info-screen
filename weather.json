@@ -2,20 +2,20 @@
   "source": "中国天气网 official weather.com.cn",
   "source_type": "CMA",
   "city": "重庆市江津区",
-  "updated_local": "2026-10-18 08:25:16",
-  "updated_ts": 1792283116,
+  "updated_local": "2026-10-18 12:58:49",
+  "updated_ts": 1792299529,
   "current": {
-    "temp": "20.7",
-    "weather": "阴",
-    "wd": "西风",
-    "ws": "2级",
-    "humidity": "54%",
+    "temp": "20.9",
+    "weather": "多云",
+    "wd": "西南风",
+    "ws": "1级",
+    "humidity": "61%",
     "pressure": "987",
-    "vis": "30km",
+    "vis": "27km",
     "rain24h": "0mm",
-    "obstime": "08:05",
-    "aqi": "25",
-    "aqi_pm25": "25"
+    "obstime": "12:45",
+    "aqi": "20",
+    "aqi_pm25": "20"
   },
   "forecast": [
     {
@@ -23,8 +23,8 @@
       "label": "今天",
       "weather": "多云",
       "code": "02",
-      "high": "21",
-      "low": "18"
+      "high": "23",
+      "low": "19"
     },
     {
       "date": "10/19",
@@ -45,8 +45,8 @@
     {
       "date": "10/21",
       "label": "星期三",
-      "weather": "小雨",
-      "code": "07",
+      "weather": "晴间多云",
+      "code": "01",
       "high": "22",
       "low": "17"
     },
@@ -63,7 +63,7 @@
   "indices": {
     "穿衣": "较舒适",
     "空气污染扩散": "较差",
-    "舒适度": "较舒适",
+    "舒适度": "舒适",
     "紫外线": "最弱",
     "逛街": "适宜",
     "晨练": "较适宜",
