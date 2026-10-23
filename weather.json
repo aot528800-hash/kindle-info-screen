@@ -2,20 +2,20 @@
   "source": "中国天气网 official weather.com.cn",
   "source_type": "CMA",
   "city": "重庆市江津区",
-  "updated_local": "2026-10-23 08:52:06",
-  "updated_ts": 1792716726,
+  "updated_local": "2026-10-23 13:40:52",
+  "updated_ts": 1792734052,
   "current": {
-    "temp": "17.8",
-    "weather": "多云",
-    "wd": "东南风",
-    "ws": "1级",
-    "humidity": "84%",
-    "pressure": "986",
-    "vis": "13km",
+    "temp": "20.7",
+    "weather": "阴",
+    "wd": "东风",
+    "ws": "2级",
+    "humidity": "67%",
+    "pressure": "984",
+    "vis": "12km",
     "rain24h": "0mm",
-    "obstime": "08:35",
-    "aqi": "34",
-    "aqi_pm25": "34"
+    "obstime": "13:25",
+    "aqi": "35",
+    "aqi_pm25": "35"
   },
   "forecast": [
     {
