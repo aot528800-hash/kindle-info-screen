@@ -2,37 +2,29 @@
   "source": "中国天气网 official weather.com.cn",
   "source_type": "CMA",
   "city": "重庆市江津区",
-  "updated_local": "2026-10-24 03:28:57",
-  "updated_ts": 1792783737,
+  "updated_local": "2026-10-24 06:34:12",
+  "updated_ts": 1792794852,
   "current": {
     "temp": "18.7",
     "weather": "多云",
-    "wd": "东北风",
-    "ws": "2级",
-    "humidity": "80%",
+    "wd": "东风",
+    "ws": "1级",
+    "humidity": "79%",
     "pressure": "981",
     "vis": "10km",
     "rain24h": "0mm",
-    "obstime": "03:15",
-    "aqi": "43",
-    "aqi_pm25": "43"
+    "obstime": "06:20",
+    "aqi": "30",
+    "aqi_pm25": "30"
   },
   "forecast": [
     {
-      "date": "10/23",
+      "date": "10/24",
       "label": "今天",
       "weather": "多云",
       "code": "02",
-      "high": "21",
-      "low": "17"
-    },
-    {
-      "date": "10/24",
-      "label": "星期六",
-      "weather": "多云",
-      "code": "02",
       "high": "22",
-      "low": "18"
+      "low": "19"
     },
     {
       "date": "10/25",
@@ -55,7 +47,15 @@
       "label": "星期二",
       "weather": "小雨",
       "code": "07",
-      "high": "17",
+      "high": "18",
+      "low": "16"
+    },
+    {
+      "date": "10/28",
+      "label": "星期三",
+      "weather": "多云",
+      "code": "02",
+      "high": "18",
       "low": "16"
     }
   ],
@@ -75,7 +75,7 @@
     "空调": "较少开启",
     "啤酒": "较适宜",
     "运动": "适宜",
-    "洗车": "较适宜",
+    "洗车": "不宜",
     "防晒": "弱"
   }
 }
